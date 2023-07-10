@@ -5,6 +5,6 @@ from easy_boto3 import aws_metadata, session_auth
 file_path = os.path.abspath(__file__)
 parent_directory = '/'.join(file_path.split('/')[:-1])
 
- 
+
 def main():
     pass

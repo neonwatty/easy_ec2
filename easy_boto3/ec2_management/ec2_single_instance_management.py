@@ -2,22 +2,25 @@ from easy_boto3 import session_auth
 
 
 @session_auth
-def launch_instance(script: str, 
+def launch_instance(startup_script: str, 
                     session=None,
                     **kwargs) -> object:
-    # create ec2 controller from session
-    ec2_controller = session.resource('ec2', region_name='us-west-2')
-
     # optinally set config options
-    InstanceName = 'transcript_worker'
+    region = 'us-west-2'
+    InstanceName = 'example_worker'
     InstanceType = 't2.micro'
     ImageId = 'ami-03f65b8614a860c29'
+    if 'region' in kwargs:
+        region = kwargs['region']
     if 'InstanceName' in kwargs:
         InstanceName = kwargs['InstanceName']
     if 'InstanceType' in kwargs:
         InstanceType = kwargs['InstanceType']
     if 'ImageId' in kwargs:
         ImageId = kwargs['ImageId']
+
+    # create ec2 controller from session
+    ec2_controller = session.resource('ec2', region_name=region)
 
     # create a new EC2 instance
     instances = ec2_controller.create_instances(
@@ -27,7 +30,7 @@ def launch_instance(script: str,
             'DeviceIndex': 0,
             'Groups': ['sg-0ad8c55f58167f63d'],
             'AssociatePublicIpAddress': True}],
-        UserData=script,
+        UserData=startup_script,
         MinCount=1,
         MaxCount=1,
         TagSpecifications=[{'ResourceType': 'instance',

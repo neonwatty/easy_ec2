@@ -3,9 +3,6 @@ import sys
 from easy_boto3.utilities.session_maker import SessionAuthenticator
 from easy_boto3.utilities.aws_profile_parser import get_aws_metadata
 
-### load in aws metadata ###
-aws_metadata = get_aws_metadata()
-
 ### add paths ###
 # path to this file
 file_path = os.path.abspath(__file__)
@@ -20,6 +17,9 @@ base_directory = os.path.dirname(os.path.dirname(os.path.dirname(file_path)))
 sys.path.append(parent_directory)
 sys.path.append(base_directory)
 
+
+### load in aws metadata ###
+aws_metadata = get_aws_metadata()
 
 ### instance of decorators ###
 session_auth = SessionAuthenticator(

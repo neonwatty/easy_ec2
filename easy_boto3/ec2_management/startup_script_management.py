@@ -1,9 +1,5 @@
-import os
 import requests
-from easy_boto3 import scripts_path, aws_access_key_id, aws_secret_access_key
-startup_script_path = os.path.join(scripts_path, 'startup_script.sh')
-rd_startup_script_path = os.path.join(scripts_path, 'rd_startup_script.sh')
-modified_script_path = os.path.join(scripts_path, 'modified_script.sh')
+from easy_boto3 import aws_metadata
 
 
 # read in startup script
@@ -17,9 +13,9 @@ def read_startup_script(startup_script_path):
 def inject_aws_creds(startup_script: str) -> str:
     # replace aws_account_id and aws_access_key_id
     startup_script = startup_script.replace('$aws_access_key_id',
-                                            aws_access_key_id)
+                                            aws_metadata['aws_access_key_id'])
     startup_script = startup_script.replace('$aws_secret_access_key',
-                                            aws_secret_access_key)
+                                            aws_metadata['aws_secret_access_key'])
     return startup_script
 
 
@@ -42,9 +38,9 @@ def generate_rd_modified_script(script,
 
     # replace aws_account_id and aws_access_key_id
     modified_script = modified_script.replace('$aws_access_key_id',
-                                              aws_access_key_id)
+                                              aws_metadata['aws_access_key_id'])
     modified_script = modified_script.replace('$aws_secret_access_key',
-                                              aws_secret_access_key)
+                                              aws_metadata['aws_secret_access_key'])
     return modified_script
 
 
