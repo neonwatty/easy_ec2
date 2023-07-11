@@ -1,10 +1,12 @@
 from easy_boto3 import session_auth
+from easy_boto3 import aws_metadata
 
 
 @session_auth
-def launch_instance(startup_script: str, 
+def launch_instance(startup_script: str,
                     session=None,
                     **kwargs) -> object:
+
     # optinally set config options
     region = 'us-west-2'
     InstanceName = 'example_worker'
@@ -19,13 +21,14 @@ def launch_instance(startup_script: str,
     if 'ImageId' in kwargs:
         ImageId = kwargs['ImageId']
 
+
     # create ec2 controller from session
-    ec2_controller = session.resource('ec2', region_name=region)
+    ec2_controller = session.resource('ec2',
+                                      region_name=region)
 
     # create a new EC2 instance
     instances = ec2_controller.create_instances(
         ImageId=ImageId,
-        # IamInstanceProfile={'Arn': 'arn:aws:iam::829448320884:instance-profile/shiftsmart_ml'},
         NetworkInterfaces=[{
             'DeviceIndex': 0,
             'Groups': ['sg-0ad8c55f58167f63d'],
@@ -37,7 +40,7 @@ def launch_instance(startup_script: str,
                             'Tags': [{'Key': 'Name',
                                       'Value': InstanceName}]}],
         InstanceType=InstanceType,
-        KeyName='shiftsmart_transcript_west_2',
+        KeyName=aws_metadata['aws_ssh_key'].split('/')[-1].split('.pem')[0],
         Monitoring={'Enabled': True},
         BlockDeviceMappings=[
             {
