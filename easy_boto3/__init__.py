@@ -1,6 +1,5 @@
 import os
 import sys
-# from easy_boto3.utilities.session_maker import SessionAuthenticator
 from easy_boto3.utilities.decorators import SessionAuthenticator
 from easy_boto3.utilities.aws_profile_parser import get_aws_metadata
 
