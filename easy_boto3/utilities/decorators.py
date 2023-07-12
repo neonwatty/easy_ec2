@@ -35,7 +35,7 @@ class LogExceptions:
 
 
 class SessionAuthenticator:
-    def __init__(self, 
+    def __init__(self,
                  aws_access_key_id,
                  aws_secret_access_key,
                  aws_profile_name,

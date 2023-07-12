@@ -1,3 +1,4 @@
+import os, time
 from easy_boto3 import session_auth
 import paramiko
 import logging
@@ -7,7 +8,7 @@ logging.getLogger("paramiko").setLevel(logging.CRITICAL)
 def add_instance_to_known_hosts(instance_ip):
     # connect to instance
     username = 'ubuntu'
-    key_path = '/Users/wattjer/.ssh/shiftsmart_transcript_west_2.pem' 
+    key_path = '/Users/wattjer/.ssh/shiftsmart_transcript_west_2.pem'
     ec2_public_ip = instance_ip
 
     # Create an SSH client
@@ -29,7 +30,7 @@ def add_instance_to_known_hosts(instance_ip):
 
             ssh_transport.start_client()
             key = ssh_transport.get_remote_server_key()
-            ssh_transport.close()   
+            ssh_transport.close()
 
             name = key.get_name()
             if name not in all_names:

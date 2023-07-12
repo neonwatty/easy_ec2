@@ -1,4 +1,5 @@
-from easy_boto3 import session_auth
+from easy_boto3.setup_session import setup
+session_auth = setup()
 
 
 @session_auth

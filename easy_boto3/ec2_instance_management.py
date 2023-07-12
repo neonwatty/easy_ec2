@@ -1,12 +1,23 @@
-from easy_boto3 import session_auth
-from easy_boto3 import aws_metadata
+from easy_boto3.setup_session import setup
+session_auth = setup()
 
 
 @session_auth
-def launch_instance(region='us-west-2',
+def launch_instance(key_name: str,
+                    region='us-west-2',
                     InstanceName='example_worker',
                     InstanceType='t2.micro',
                     ImageId='ami-03f65b8614a860c29',
+                    Tags=[{'Key': 'Name', 'Value': 'example_worker'}],
+                    BlockDeviceMappings=[
+                        {
+                            'DeviceName': '/dev/sda1',
+                            'Ebs': {
+                                'VolumeSize': 300,
+                                'VolumeType': 'gp2'
+                            }
+                        }
+                    ],
                     startup_script: str = None,
                     session=None) -> object:
 
@@ -28,20 +39,11 @@ def launch_instance(region='us-west-2',
         MinCount=1,
         MaxCount=1,
         TagSpecifications=[{'ResourceType': 'instance',
-                            'Tags': [{'Key': 'Name',
-                                      'Value': InstanceName}]}],
+                            'Tags': Tags}],
         InstanceType=InstanceType,
-        KeyName=aws_metadata['aws_ssh_key'].split('/')[-1].split('.pem')[0],
+        KeyName=key_name,
         Monitoring={'Enabled': True},
-        BlockDeviceMappings=[
-            {
-                'DeviceName': '/dev/sda1',
-                'Ebs': {
-                    'VolumeSize': 300,
-                    'VolumeType': 'gp2'
-                }
-            }
-        ],
+        BlockDeviceMappings=BlockDeviceMappings,
         # enable IMDSv2
         MetadataOptions={
             'HttpTokens': 'required',

@@ -2,7 +2,7 @@
 
 `easy_boto3` reduces the complexity of using bare metal `boto3` by adding useful abstractions on top of it that make it easier to employ in creating, managing, and tearing down AWS resources. 
 
-To get started you just need to direct `easy_boto3` to your locally stored AWS credentials, desired profile, and AWS-specific ssh key.  Do this by creating a simple config file at `~/.easy_boto3/easy_boto3_base.yaml` in the simple format shown below.
+To get started you just need to direct `easy_boto3` to your locally stored AWS credentials, desired profile, and AWS-specific ssh key.  Do this by creating a simple config file where you store your `aws` credentials at `~/.aws/easy_boto3/easy_boto3_base.yaml` in the simple format shown below.
 
 ```yaml
 aws_data:
@@ -10,6 +10,9 @@ aws_data:
     profile_name: <your_desired_aws_profile>
     aws_ssh_key: <path_to_your_ssh_key> -> typically something like: /Users/<my_user>/.ssh/<your_aws_key>
 ```
+
+
+
 
 ## Installation
 
