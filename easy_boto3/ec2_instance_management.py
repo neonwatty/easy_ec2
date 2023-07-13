@@ -5,19 +5,12 @@ session_auth = setup()
 @session_auth
 def launch_instance(key_name: str,
                     region='us-west-2',
-                    InstanceName='example_worker',
-                    InstanceType='t2.micro',
-                    ImageId='ami-03f65b8614a860c29',
-                    Tags=[{'Key': 'Name', 'Value': 'example_worker'}],
-                    BlockDeviceMappings=[
-                        {
-                            'DeviceName': '/dev/sda1',
-                            'Ebs': {
-                                'VolumeSize': 300,
-                                'VolumeType': 'gp2'
-                            }
-                        }
-                    ],
+                    instance_name='example_worker',
+                    instance_type='t2.micro',
+                    image_id='ami-03f65b8614a860c29',
+                    tags=[{'Key': 'Name', 'Value': 'example_worker'}],
+                    block_device_mappings=None,
+                    security_group_ids=None,
                     startup_script: str = None,
                     session=None) -> object:
 
@@ -30,20 +23,20 @@ def launch_instance(key_name: str,
 
     # create a new EC2 instance
     instances = ec2_controller.create_instances(
-        ImageId=ImageId,
+        ImageId=image_id,
         NetworkInterfaces=[{
             'DeviceIndex': 0,
-            'Groups': ['sg-0ad8c55f58167f63d'],
+            'Groups': security_group_ids,
             'AssociatePublicIpAddress': True}],
         UserData=startup_script,
         MinCount=1,
         MaxCount=1,
         TagSpecifications=[{'ResourceType': 'instance',
-                            'Tags': Tags}],
-        InstanceType=InstanceType,
+                            'Tags': tags}],
+        InstanceType=instance_type,
         KeyName=key_name,
         Monitoring={'Enabled': True},
-        BlockDeviceMappings=BlockDeviceMappings,
+        BlockDeviceMappings=block_device_mappings,
         # enable IMDSv2
         MetadataOptions={
             'HttpTokens': 'required',

@@ -6,12 +6,12 @@ import yaml
 
 # create session authenticator based on aws credentials
 def setup() -> SessionAuthenticator:
-    # load in internal config file for profile_name 
+    # load in internal config file for profile_name
     with open(internal_config_path, 'r') as f:
         internal_config = yaml.load(f, Loader=yaml.FullLoader)
 
     # get profile name
-    profile_name = internal_config['profile_name']
+    profile_name = internal_config['aws_profile']
 
     # load in aws metadata
     aws_metadata = get_aws_login_data(profile_name)
