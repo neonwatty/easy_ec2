@@ -6,6 +6,10 @@ authors = ["Jeremy Watt <jermwatt@gmail.com>"]
 readme = "README.md"
 packages = [{include = "easy_boto3"}]
 
+[tool.poetry.scripts]
+quick_batch = "quick_batch.main:main"
+
+
 [tool.poetry.dependencies]
 python = "^3.9"
 boto3 = "^1.26.142"

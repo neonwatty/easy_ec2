@@ -8,4 +8,5 @@ aws_config_path = aws_config_directory + '/config'
 file_path = os.path.abspath(__file__)
 library_path = os.path.dirname(file_path)
 
+# path to internal yaml file
 internal_config_path = library_path + '/.easy_boto3_internal.yaml'
