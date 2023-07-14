@@ -1,5 +1,4 @@
 import requests
-from easy_boto3 import aws_metadata
 
 
 # read in startup script

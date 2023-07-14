@@ -1,8 +1,15 @@
-# easy_boto3 - a simpler way of managing AWS resources via boto3
+# easy_boto3 - configuration driven AWS resource management using boto3
 
-`easy_boto3` wraps `boto3` in an easy to use `.yaml` configuration UX for modern infrastructure-as-code usage of `boto3`.  This allows for easier auditing and iteration of AWS infrastructure; deployment, management, and tear-down of AWS resources; and provides more `boto3` fine-tuning options compared to config systems like `terraform`.
+`easy_boto3` wraps `boto3` in an easy to use `.yaml` configuration UX for modern infrastructure-as-code usage of `boto3`, allowing for easier creation and versioning of AWS infrastructure - including deployment, management, and tear-down of AWS resources  - using familiar `boto3` syntax.
 
-## Installation
+`easy_boto3` is designed to be used in conjunction with `boto3` and `awscli` to provide a simple, easy to use, and easy to refactor interface for AWS resource management.
+
+[Installation](#installation) 
+[Getting started](#getting-started)
+[Example usage](#example-usage) 
+[Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
+
+## Installation 
 
 You can install `easy_boto3` via `pip` as
 
@@ -10,182 +17,166 @@ You can install `easy_boto3` via `pip` as
 pip install easy_boto3
 ```
 
-## Getting started
+## Using `easy_boto3`
 
-To get started you just need to direct `easy_boto3` to your locally stored AWS credentials, desired profile, and AWS-specific ssh key.  Do this by creating a simple config file where you store your `aws` credentials at `~/.aws/easy_boto3/easy_boto3_base.yaml` in the simple format shown below.
-
-```yaml
-aws_data:
-    aws_config_directory: <path_to_your_aws_config> -> typically something like: /Users/<my_user>/.aws
-    profile_name: <your_desired_aws_profile>
-    aws_ssh_key: <path_to_your_ssh_key> -> typically something like: /Users/<my_user>/.ssh/<your_aws_key>
-```
-
-
-
-
-## Installation
-
-```bash
-pip install easy_boto3
-```
-
-## Example usage
-### examples - creating an ec2 instance 
-
-In this example an ec2 instance of user-specified type and AMI is created using a user-defined startup `bash` script.  
-
-Note `block_device_mappings` are optional.
-
-```python 
-from easy_boto3.ec2_instance_management import launch_instance
-
-# ssh key_name for instance creation - note you only need the name here (not the path)
-key_name = <ssh_key_name>
-
-# define basic parameters of ec2 instance - including instance type and ami
-region = 'us-west-2'
-instance_name = 'example_worker'
-instance_type = 't2.micro'
-image_id = 'ami-03f65b8614a860c29'
-security_group_ids = [<security_group_id>]
-block_device_mappings = [<your_block_device_mappings>] # optional
-
-    
-# launch instance
-launch_response = launch_instance(key_name=key_name,
-                                  region=region,
-                                  instance_name=instance_name,
-                                  instance_type=instance_type,
-                                  image_id=image_id,
-                                  security_group_ids=security_group_ids,
-                                  block_device_mappings=block_device_mappings)
-
-```
-
-In this example we add to the previous by passing a user defined `bash` startup script that will be executed when the ec2 instance is first instantiated.
-
+`easy_boto3` allows you to translate a standard `boto3` pythonic infrastructure task like instantiating an `ec2` instance with an attached `cloudwatch` cpu usage alarm from complex pythonic implementation like the following 
 
 ```python
+import boto3
+
+# read in aws_access_key_id and aws_secret_access_key based on input profile_name using boto3
+session = boto3.Session(profile_name=profile_name)
+
+# create ec2 controller from session
+ec2_controller = session.resource('ec2')
+
+# read in startup script
+with open(startup_script_path, 'r') as file:
+    startup_script = file.read()
+
+# create a new EC2 instance
+instances = ec2_controller.create_instances(
+    ImageId='ami-03f65b8614a860c29',
+    InstanceName='example_worker',
+    NetworkInterfaces=[{
+        'DeviceIndex': 0,
+        'Groups': ['sg-1ed8w56f12347f63d'],
+        'AssociatePublicIpAddress': True}],
+    UserData=startup_script,
+    TagSpecifications=[{'ResourceType': 'instance',
+                        'Tags': [{'Key': 'Name', 'Value': 'example_worker'}]}],
+    InstanceType='t2.micro',
+    KeyName=<ssh_key_name>,
+    )
+
+# wait for the instance to enter running state
+instances[0].wait_until_running()
+instance_id = instances[0].id
+
+# create cloud watch client
+cloudwatch_client = session.client('cloudwatch')
+
+# enable detailed monitoring for the instance
+ec2_client.monitor_instances(InstanceIds=[instance_id])
+
+# create alarm
+result = cloudwatch_client.put_metric_alarm(
+        AlarmName=cpu_alarm_name,
+        ComparisonOperator='GreaterThanOrEqualToThreshold',
+        EvaluationPeriods=1,
+        MetricName='CPUUtilization',
+        Namespace='AWS/EC2',
+        Period=60,
+        Statistic='Average',
+        Threshold=threshold_value,
+        Dimensions=[
+            {
+                'Name': 'InstanceId',
+                'Value': instance_id
+            },
+        ],
+    )
+```
+
+into easier to re / use and refactor `.yaml` configuration file using the same `boto3` option syntax for to declaration of the same task.  So for example the above task can be accomplished using the analogous `.yaml` configuration file carrying over the same `boto3` option syntax as follows:
+
+```yaml
+awsProfile: profile_name
+
+createEc2Instance:
+    InstanceName: example_worker
+    region: us-west-2
+    InstanceType: t2.micro
+    ImageId: ami-03f65b8614a860c29
+    Tags: 
+        - key: Name
+        value: example_worker
+    NetworkInterfaces:
+        - DeviceIndex: 0
+          Groups: 
+            - sg-1ed8w56f12347f63d
+          AssociatePublicIpAddress: true
+    KeyName: <ssh_key_name>
+    TagSpecifications: 
+        - ResourceType: instance
+            Tags: 
+            - key: Name
+                value: example_worker
+    startupScript: 
+        filePath: path_to_startup_script
+
+createCloudWatchAlarm:
+    AlarmName: ccpu_alarm_name
+    ComparisonOperator: GreaterThanOrEqualToThreshold
+    EvaluationPeriods: 1
+    MetricName: CPUUtilization
+    Namespace: AWS/EC2
+    Period: 60
+    Statistic: Average
+    Threshold: threshold_value
+    Dimensions:
+        - Name: InstanceId
+          Value: {{createEc2Instance.InstanceId}}
+```
+
+Using `easy_boto3` and this configuration `config.yaml` the same task - instantiating an `ec2` instance - can be accomplished via the command line as follows:
+
+```python
+easy_boto3 --config /path/to/config.yaml
+```
+
+Further infrastructure configuration examples can be found in the `examples/command_line` directory.
+
+## Using `easy_boto3`'s Python API
+
+In addition to config driven command line use, `easy_boto3` also offers a simplified python API that makes creating and managing AWS resources with `boto3` easier.
+
+### Creating an ec2 instance 
+
+In this example an ec2 instance of user-specified type and AMI is created.
+
+Note `block_device_mappings` and `UserData` startup bash script are optional.
+
+```python
+from easy_boto3 import set_profile
 from easy_boto3.startup_script_management import read_startup_script
 from easy_boto3.ec2_instance_management import launch_instance
 
-# ssh key_name for instance creation - note you only need the name here (not the path)
-key_name = <ssh_key_name>
+# set aws profile - optional - set to 'default' profile by default
+set_profile.set('my_aws_profile') # -> returns None if profile is valid
 
 # read in startup script from file
-startup_script = read_startup_script(<path_to_startup_script>)
+UserData = read_startup_script('./path/to/startup.sh')
 
-# define basic parameters of ec2 instance - including instance type and ami
-region = 'us-west-2'
-instance_name = 'example_worker'
-instance_type = 't2.micro'
-image_id = 'ami-03f65b8614a860c29'
-security_group_ids = [<security_group_id>]
-
-# launch instance
-launch_response = launch_instance(key_name=key_name,
-                                  region=region,
-                                  instance_name=instance_name,
-                                  instance_type=instance_type,
-                                  image_id=image_id,
-                                  startup_script=startup_script)
-```
-
-In this example we add to the previous example, showing special functionality for injecting AWS credentials into the `bash` startup script.  This allows for easy AWS login on the instantiated ec2 instance without storing AWS credentials themselves in the startup script.
-
-To use this feature, simply add variables `$aws_access_key_id` and `$aws_secret_access_key` to your `bash` startup script as shown below.
-
-```bash
-#!/bin/bash
-sudo apt-get update
-sudo apt-get install -y awscli
-
-# Set AWS access key ID and secret access key using the AWS CLI
-sudo aws configure set aws_access_key_id $aws_access_key_id
-sudo aws configure set aws_secret_access_key $aws_secret_access_key
-```
-
-Then `easy_boto3` takes care of credential injection as shown below (using the path set in your `~/.easy_boto3/easy_boto3_base.yaml` config)
-
-```python
-from easy_boto3.startup_script_management import read_startup_scriptinject_aws_creds
-from easy_boto3.ec2_instance_management import launch_instance
-
-# ssh key_name for instance creation - note you only need the name here (not the path)
-key_name = <ssh_key_name>
-
-# read in startup script from file
-startup_script = read_startup_script(<path_to_startup_script>)
-
-# inject aws creds into base script
-startup_script = inject_aws_creds(startup_script)
-
-# define basic parameters of ec2 instance - including instance type and ami
-region = 'us-west-2'
-instance_name = 'example_worker'
-instance_type = 't2.micro'
-image_id = 'ami-03f65b8614a860c29'
-security_group_ids = [<security_group_id>]
+# build ec2 launch instance command
+InstanceName = 'example_worker'
+InstanceType = 't2.micro'
+ImageId = 'ami-03f65b8614a860c29'
+Groups = ['my_security_group_id']
+BlockDeviceMappings = [
+    {
+        'DeviceName': '/dev/sda1',
+        'Ebs': {
+            'VolumeSize': 300,
+            'VolumeType': 'gp2'
+        }
+    }
+]
+KeyName = 'my_ssh_key_name'
 
 # launch instance
-launch_response = launch_instance(key_name=key_name,
-                                  region=region,
-                                  instance_name=instance_name,
-                                  instance_type=instance_type,
-                                  image_id=image_id,
-                                  startup_script=startup_script,
-                                  security_group_ids=security_group_ids)
+launch_result = launch_instance(KeyName=KeyName,
+                                InstanceName=InstanceName,
+                                InstanceType=InstanceType,
+                                ImageId=ImageId,
+                                Groups=Groups,
+                                BlockDeviceMappings=BlockDeviceMappings,
+                                UserData=UserData)
+
+# wait for the instance to enter running state
+launch_result.wait_until_running()
+
+# get instance id
+instance_id = launch_result[0].id
 ```
-
-
-## Setting profile
-
-You can easily validate, check, and change between AWS profiles using `easy_boto3`.
-
-By default `easy_boto3` uses your `default` profile.
-
-```python 
-from easy_boto3 import set_profile
-
-# validate current profile
-set_profile.validate() # -> returns None if profile valid
-
-# check which profile is currently being used - automatically validates
-set_profile.check()  # -> 'default'
-
-# set new profile - automatically validates new profile
-set_profile.validate('your_alternative_profile') # -> returns None if profile is valid
-
-```
-
-Note: to use an alternative profile `set_profile.set` must be run first.
-
-For example, to use `your_alternative_profile` to launch an ec2 instance:
-
-```python
-# set alternative aws profile
-from easy_boto3 import set_profile
-set_profile.validate('your_alternative_profile')
-
-# launch an ec2 instance under this alternative profile
-from easy_boto3.ec2_instance_management import launch_instance
-
-# ssh key_name for instance creation - note you only need the name here (not the path)
-key_name = <ssh_key_name>
-
-# define basic parameters of ec2 instance - including instance type and ami
-region = 'us-west-2'
-instance_name = 'example_worker'
-instance_type = 't2.micro'
-image_id = 'ami-03f65b8614a860c29'
-security_group_ids = [<security_group_id>]
-
-# launch instance
-launch_response = launch_instance(key_name=key_name,
-                                  region=region,
-                                  instance_name=instance_name,
-                                  instance_type=instance_type,
-                                  image_id=image_id,
-                                  security_group_ids=security_group_ids)
-```
+Further uses of the Python API can be found in the `examples/python_api` directory.

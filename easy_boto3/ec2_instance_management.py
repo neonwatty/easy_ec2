@@ -3,41 +3,39 @@ session_auth = setup()
 
 
 @session_auth
-def launch_instance(key_name: str,
-                    region='us-west-2',
-                    instance_name='example_worker',
-                    instance_type='t2.micro',
-                    image_id='ami-03f65b8614a860c29',
-                    tags=[{'Key': 'Name', 'Value': 'example_worker'}],
-                    block_device_mappings=None,
-                    security_group_ids=None,
-                    startup_script: str = None,
+def launch_instance(KeyName: str,
+                    InstanceName='example_worker',
+                    InstanceType='t2.micro',
+                    ImageId='ami-03f65b8614a860c29',
+                    BlockDeviceMappings=None,
+                    Groups=None,
+                    UserData: str = None,
                     session=None) -> object:
 
     # create ec2 controller from session
-    ec2_controller = session.resource('ec2',
-                                      region_name=region)
+    ec2_controller = session.resource('ec2')
+
     # translate startup_script if None
-    if startup_script is None:
-        startup_script = '#!/bin/bash'
+    if UserData is None:
+        UserData = '#!/bin/bash'
 
     # create a new EC2 instance
     instances = ec2_controller.create_instances(
-        ImageId=image_id,
+        ImageId=ImageId,
         NetworkInterfaces=[{
             'DeviceIndex': 0,
-            'Groups': security_group_ids,
+            'Groups': Groups,
             'AssociatePublicIpAddress': True}],
-        UserData=startup_script,
+        UserData=UserData,
         MinCount=1,
         MaxCount=1,
         TagSpecifications=[{'ResourceType': 'instance',
-                            'Tags': tags}],
-        InstanceType=instance_type,
-        KeyName=key_name,
+                            'Tags': [{'Key': 'Name',
+                                      'Value': InstanceName}]}],
+        InstanceType=InstanceType,
+        KeyName=KeyName,
         Monitoring={'Enabled': True},
-        BlockDeviceMappings=block_device_mappings,
-        # enable IMDSv2
+        BlockDeviceMappings=BlockDeviceMappings,
         MetadataOptions={
             'HttpTokens': 'required',
             'HttpEndpoint': 'enabled'

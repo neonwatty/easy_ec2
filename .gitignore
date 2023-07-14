@@ -10,7 +10,8 @@ startup_scripts/
 *.sh
 .ipynb_checkpoints
 .pyc
-
+.ipynb
+wip_demos/
 
 # C extensions
 *.so
