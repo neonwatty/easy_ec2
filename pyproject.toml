@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "easy_boto3"}]
 
 [tool.poetry.scripts]
-quick_batch = "quick_batch.main:main"
+easy_boto3 = "easy_boto3.main:main"
 
 
 [tool.poetry.dependencies]
