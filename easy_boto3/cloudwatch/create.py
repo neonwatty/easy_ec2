@@ -12,11 +12,16 @@ def create_cpu_alarm(instance_id=None,
                      Period=60,
                      Statistic='Average',
                      Threshold=70,
-                     Dimensions=None,
                      session=None):
     # create ec2 controller from session
     ec2_client = session.client('ec2')
     cloudwatch_client = session.client('cloudwatch')
+
+    # construct simple dimension
+    Dimensions = [{
+            'Name': 'InstanceId',
+            'Value': instance_id
+        }]
 
     # Enable detailed monitoring for the instance
     ec2_client.monitor_instances(InstanceIds=[instance_id])

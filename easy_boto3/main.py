@@ -3,6 +3,7 @@
 import sys
 import yaml
 import fire
+from easy_boto3.profile import profile
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
@@ -25,6 +26,14 @@ class EasyBoto3:
         self.create_cpu_alarm = create_cpu_alarm
         self.list_all_alarms = list_alarms
         self.delete_alarm = delete_alarm
+
+    def profile(self, sub_operation, **kwargs):
+        if sub_operation == "set":
+            return profile.set(**kwargs)
+        if sub_operation == "check":
+            return profile.check(**kwargs)
+        if sub_operation == "validate":
+            return profile.validate(**kwargs)
 
     def ec2(self, sub_operation, **kwargs):
         if sub_operation == "create":
@@ -67,9 +76,21 @@ if __name__ == "__main__":
 
             # ec2 config parser
             if args[1] == "ec2":
-                ec2_instance_details = ec2_config_parser(config)
+                profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
+
+                # set profile
+                EasyBoto3().profile("set", profile_name=profile_name)
+
+                # launch instance
                 launch_details = EasyBoto3().ec2("create", **ec2_instance_details)
-                print(launch_details)
+
+                # if alarm_details is not None, setup alarm
+                if alarm_instance_details is not None:
+                    # add instance_id to alarm_instance_details
+                    alarm_instance_details['instance_id'] = launch_details.id
+
+                    # create alarm
+                    alarm_details = EasyBoto3().cloudwatch("create", **alarm_instance_details)
         if args[2] == "stop":
             if args[1] == "ec2":
                 instance_id = args[3]
