@@ -3,9 +3,10 @@ from .ec2.create import create_instance
 from .ec2.stop import stop_instance
 from .ec2.terminate import terminate_instance
 from .ec2.list import list_all, list_running, list_stopped
-from cloudwatch.create import create_cpu_alarm
-from cloudwatch.list import list_alarms
-from cloudwatch.delete import delete_alarm
+from .cloudwatch.create import create_cpu_alarm
+from .cloudwatch.list import list_alarms
+from .cloudwatch.delete import delete_alarm
+
 
 class EasyBoto3:
     def __init__(self):

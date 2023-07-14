@@ -3,14 +3,14 @@ session_auth = setup()
 
 
 @session_auth
-def delete_alarm(alarm_name,
+def delete_alarm(AlarmName: str,
                  session=None):
 
     # create cloudwatch controller from session
     cloudwatch_client = session.client('cloudwatch')
 
     # delete alarm
-    response = cloudwatch_client.delete_alarms(AlarmNames=[alarm_name])
+    response = cloudwatch_client.delete_alarms(AlarmNames=[AlarmName])
     return response
 
 
