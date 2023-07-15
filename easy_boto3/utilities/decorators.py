@@ -1,6 +1,7 @@
 import functools
 import boto3
 import botocore
+from yaspin import yaspin
 
 
 def decode_authorization_failure_message(message):
@@ -18,19 +19,24 @@ class LogExceptions:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             func_name = func.__name__
-            try:
-                result = func(*args, **kwargs)
-            except botocore.exceptions.ClientError as e:
-                if e.response['Error']['Code'] == 'UnauthorizedOperation':
-                    decoded_message = self.decode_authorization_failure_message(e.response['Error']['Message'])
-                    print(f"FAILURE: {func_name} failed: {e}\nDecoded message: {decoded_message}")
-                else:
+            with yaspin(text=f"executing {func_name}", color="yellow") as spinner:
+                try:
+                    result = func(*args, **kwargs)
+                except botocore.exceptions.ClientError as e:
+                    if e.response['Error']['Code'] == 'UnauthorizedOperation':
+                        decoded_message = self.decode_authorization_failure_message(e.response['Error']['Message'])
+                        print(f"FAILURE: {func_name} failed: {e}\nDecoded message: {decoded_message}")
+                        spinner.fail("💥 ")
+                    else:
+                        print(f"FAILURE: {func_name} failed: {e}")
+                        spinner.fail("💥 ")
+                except Exception as e:
+                    spinner.fail("💥 ")
                     print(f"FAILURE: {func_name} failed: {e}")
-            except Exception as e:
-                print(f"FAILURE: {func_name} failed: {e}")
-            else:
-                print(f"SUCCESS: {func_name} succeeded")
-                return result
+                else:
+                    # print(f"SUCCESS: {func_name} succeeded")
+                    spinner.ok("✅ ")
+                    return result
         return wrapper
 
 

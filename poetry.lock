@@ -1194,6 +1194,21 @@ files = [
 ]
 
 [[package]]
+name = "yaspin"
+version = "2.3.0"
+description = "Yet Another Terminal Spinner"
+category = "main"
+optional = false
+python-versions = ">=3.7.2,<4.0.0"
+files = [
+    {file = "yaspin-2.3.0-py3-none-any.whl", hash = "sha256:17b5548479b3d5b30adec7a87ffcdcddb403d14a2bb86fbcee97f37951e13427"},
+    {file = "yaspin-2.3.0.tar.gz", hash = "sha256:547afd1a9700ac3a29a9f5591c70343bef186ed5dfb5e545a9bb0c77e561a1c9"},
+]
+
+[package.dependencies]
+termcolor = ">=2.2,<3.0"
+
+[[package]]
 name = "zipp"
 version = "3.16.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -1212,4 +1227,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "af8683f1227e972604a3eeb24992ab7545ef686985b3d3a02c03590956040c5d"
+content-hash = "d5a2827db3788dd839ad1d827fce5cb38a1ba3c2d358868da3eb923c645ac816"

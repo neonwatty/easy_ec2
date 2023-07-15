@@ -22,11 +22,12 @@ def list_all(session=None):
 
             # package instance data in small dictionary 
             instance_data = {'instance_id': instance_id,
-                             'instance_state': instance_state,
-                             'instance_type': instance_type}
+                            'instance_state': instance_state,
+                            'instance_type': instance_type}
 
             # store instance information
             all_instances.append(instance_data)
+     
     return all_instances
 
 
