@@ -35,7 +35,7 @@ class LogExceptions:
                     print(f"FAILURE: {func_name} failed: {e}")
                 else:
                     # print(f"SUCCESS: {func_name} succeeded")
-                    spinner.ok("✅ ")
+                    spinner.ok("✅ SUCCESS: ")
                     return result
         return wrapper
 
