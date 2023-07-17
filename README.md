@@ -4,10 +4,16 @@
 
 `easy_boto3` is designed to be used in conjunction with `boto3` and `awscli` to provide a simple, easy to use, and easy to refactor interface for AWS resource management.
 
-[Installation](#installation) 
-[Getting started](#getting-started)
-[Example usage](#example-usage) 
-[Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
+### Contents
+- [easy\_boto3 - configuration driven AWS resource management using boto3](#easy_boto3---configuration-driven-aws-resource-management-using-boto3)
+    - [Contents](#contents)
+  - [Installation](#installation)
+  - [Using `easy_boto3` CLI](#using-easy_boto3-cli)
+    - [Creating an ec2 instance with cloudwatch alarm](#creating-an-ec2-instance-with-cloudwatch-alarm)
+    - [Listing ec2 instances](#listing-ec2-instances)
+    - [Termianting ec2 instances by id](#termianting-ec2-instances-by-id)
+  - [Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
+    - [Creating an ec2 instance](#creating-an-ec2-instance)
 
 ## Installation 
 
@@ -17,7 +23,9 @@ You can install `easy_boto3` via `pip` as
 pip install easy_boto3
 ```
 
-## Using `easy_boto3`
+## Using `easy_boto3` CLI
+
+### Creating an ec2 instance with cloudwatch alarm
 
 `easy_boto3` allows you to translate a standard `boto3` pythonic infrastructure task like instantiating an `ec2` instance with an attached `cloudwatch` cpu usage alarm from complex pythonic implementation like the following 
 
@@ -81,51 +89,95 @@ result = cloudwatch_client.put_metric_alarm(
 into easier to re / use and refactor `.yaml` configuration file using the same `boto3` option syntax for to declaration of the same task.  So for example the above task can be accomplished using the analogous `.yaml` configuration file carrying over the same `boto3` option syntax as follows:
 
 ```yaml
-awsProfile: profile_name
+aws_profile: <your profile name in config/credentials of ~/.aws>
 
-createEc2Instance:
+ec2_instance:
+  instance_details:
     InstanceName: example_worker
-    region: us-west-2
     InstanceType: t2.micro
     ImageId: ami-03f65b8614a860c29
-    Tags: 
-        - key: Name
-        value: example_worker
-    NetworkInterfaces:
-        - DeviceIndex: 0
-          Groups: 
-            - sg-1ed8w56f12347f63d
-          AssociatePublicIpAddress: true
-    KeyName: <ssh_key_name>
-    TagSpecifications: 
-        - ResourceType: instance
-            Tags: 
-            - key: Name
-                value: example_worker
-    startupScript: 
-        filePath: path_to_startup_script
+    BlockDeviceMappings: 
+      DeviceName: /dev/sda1
+      Ebs: 
+        DeleteOnTermination: true
+        VolumeSize: 8
+        VolumeType: gp2
+    Groups:
+      - <your security group>
 
-createCloudWatchAlarm:
-    AlarmName: ccpu_alarm_name
-    ComparisonOperator: GreaterThanOrEqualToThreshold
-    EvaluationPeriods: 1
-    MetricName: CPUUtilization
-    Namespace: AWS/EC2
-    Period: 60
-    Statistic: Average
-    Threshold: threshold_value
-    Dimensions:
-        - Name: InstanceId
-          Value: {{createEc2Instance.InstanceId}}
+  ssh_details: 
+    KeyName: <your ssh key located in ~/.ssh>
+    UserName: ubuntu
+    add_to_known_hosts: true
+    test_connection: true
+
+  script_details: 
+    filepath: <path_to_startup>
+    inject_aws_creds: false
+
+alarm_details:
+  ComparisonOperator: GreaterThanOrEqualToThreshold
+  EvaluationPeriods: 1
+  MetricName: CPUUtilization
+  Namespace: AWS/EC2
+  Period: 60
+  Statistic: Average
+  Threshold: 0.99
 ```
 
 Using `easy_boto3` and this configuration `config.yaml` the same task - instantiating an `ec2` instance - can be accomplished via the command line as follows:
 
-```python
-easy_boto3 --config /path/to/config.yaml
+```bash
+easy_boto3 ec2 create config.yaml
 ```
 
-Further infrastructure configuration examples can be found in the `examples/command_line` directory.
+### Listing ec2 instances 
+
+You can use `easy_boto3` to easy see (all/ running / stopped / terminated) instances in your AWS account as follows.
+
+See all instances
+
+```bash
+easy_boto3 ec2 list_all
+```
+
+
+See just running instances 
+
+```bash
+easy_boto3 ec2 list_running
+```
+
+The output of this command gives the instance id, name, type, and state of each instance in your account - looking like this
+
+```bash
+{'instance_id': 'instance_id', 'instance_state': 'running', 'instance_type': 't2.micro'}
+```
+
+You can filter by state - running, stopped, terminated - as follows
+
+```bash
+easy_boto3 ec2 list_running
+```
+
+```bash
+easy_boto3 ec2 list_stopped
+```
+
+```bash
+easy_boto3 ec2 list_terminated
+```
+
+### Termianting ec2 instances by id  
+
+You can use `easy_boto3` CLI to terminate an ec2 instance by id as follows
+
+```bash
+easy_boto3 ec2 terminate <instance_id>
+```
+
+Note: by default this will delete any cloudwatch alarms associated with the instance.
+
 
 ## Using `easy_boto3`'s Python API
 
