@@ -1,8 +1,6 @@
 # `easy_boto3` CLI and Python `boto3` made simple 
 
-`easy_boto3` wraps `boto3` in an easy to use `.yaml` configuration UX for modern infrastructure-as-code usage of `boto3`, allowing for easier creation and versioning of AWS infrastructure - including deployment, management, and tear-down of AWS resources  - using familiar `boto3` syntax.
-
-`easy_boto3` is designed to be used in conjunction with `boto3` and `awscli` to provide a simple, easy to use, and easy to refactor interface for AWS resource management.
+`easy_boto3` simplifies `boto3` usage by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS resources using `boto3` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file.
 
 ### Contents
 - [`easy_boto3` CLI and Python `boto3` made simple](#easy_boto3-cli-and-python-boto3-made-simple)

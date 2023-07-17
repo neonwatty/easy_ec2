@@ -65,12 +65,12 @@ class EasyBoto3:
             print("Invalid sub-operation for 'cloudwatch'")
 
 
-if __name__ == "__main__":
-    # create a dictionary from input args enumerating each command line argument given 
+def main():
+    # create a dictionary from input args enumerating each command line argument given
     # and its value
     args = dict(enumerate(sys.argv))
 
-    # if there are four arguments, assume the final is config for now 
+    # if there are four arguments, assume the final is config for now
     if len(args) == 4:
         # if final argument contains '.yaml' assume it is config
         if args[2] == "create" and ".yaml" in args[3]:
@@ -127,8 +127,6 @@ if __name__ == "__main__":
                     print(item)
 
 
-
-
-
-
-    # fire.Fire(EasyBoto3)
+if __name__ == "__main__":
+    # run main
+    main()

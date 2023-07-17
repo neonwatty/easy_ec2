@@ -15,6 +15,3 @@ internal_config_path = library_path + '/.easy_boto3_internal.yaml'
 # if internal yaml file does not exist, create it
 if not Path(internal_config_path).exists():
     Path(internal_config_path).touch()
-    print(f".easy_boto3_internal.yaml created at: {file_path}")
-else:
-    print(f".easy_boto3_internal.yaml File already exists at: {file_path}")
