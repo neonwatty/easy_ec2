@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "easy_boto3"
+version = "0.1.0"
+description = "`easy_boto3` simplifies `boto3` usage by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS resources using `boto3` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file."
+authors = ["Jeremy Watt <jermwatt@gmail.com>"]
+readme = "README.md"
+homepage = "https://github.com/jermwatt/easy_boto3"
+packages = [{include = "easy_boto3"}]
+include = ["easy_boto3/.easy_boto3_internal.yaml"]
+
+
+[tool.poetry.scripts]
+easy_boto3 = "easy_boto3.main:main"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+boto3 = "^1.26.142"
+python-dotenv = "^1.0.0"
+toml = "^0.10.2"
+paramiko = "^3.2.0"
+requests = "^2.31.0"
+pyyaml = "^6.0"
+fire = "^0.5.0"
+tomli = "^2.0.1"
+botocore = "^1.31.1"
+yaspin = "^2.3.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.23.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

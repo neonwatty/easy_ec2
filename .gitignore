@@ -2,6 +2,16 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.env 
+.DS_Store
+*.yaml
+*.yml  
+startup_scripts/
+*.sh
+.ipynb_checkpoints
+.pyc
+.ipynb
+wip_demos/
 
 # C extensions
 *.so
