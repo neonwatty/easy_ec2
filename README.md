@@ -18,7 +18,7 @@
 You can install `easy_boto3` via `pip` as
 
 ```bash
-pip install easy_boto3
+pip install easy-boto3
 ```
 
 ## Using `easy_boto3` CLI
