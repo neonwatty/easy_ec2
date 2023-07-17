@@ -25,7 +25,6 @@ def parse(base_config):
         alarm_instance_details = {}
 
         # parse alarm details
-        alarm_instance_details['AlarmName'] = alarm_details['AlarmName']
         alarm_instance_details['ComparisonOperator'] = alarm_details['ComparisonOperator']
         alarm_instance_details['EvaluationPeriods'] = alarm_details['EvaluationPeriods']
         alarm_instance_details['MetricName'] = alarm_details['MetricName']

@@ -27,7 +27,7 @@ def list_all(session=None):
 
             # store instance information
             all_instances.append(instance_data)
-     
+
     return all_instances
 
 

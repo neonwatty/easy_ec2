@@ -4,7 +4,6 @@ session_auth = setup()
 
 @session_auth
 def create_cpu_alarm(instance_id=None,
-                     AlarmName='test_alarm',
                      ComparisonOperator='GreaterThanOrEqualToThreshold',
                      EvaluationPeriods=1,
                      MetricName='CPUUtilization',
@@ -16,6 +15,9 @@ def create_cpu_alarm(instance_id=None,
     # create ec2 controller from session
     ec2_client = session.client('ec2')
     cloudwatch_client = session.client('cloudwatch')
+
+    # create instance_id stamped alarm name
+    AlarmName = '{}-{}'.format('cpu_alarm', instance_id)
 
     # construct simple dimension
     Dimensions = [{

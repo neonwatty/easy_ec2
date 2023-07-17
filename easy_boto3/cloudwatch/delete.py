@@ -1,5 +1,6 @@
 from easy_boto3.setup_session import setup
 session_auth = setup()
+from easy_boto3.cloudwatch.list import list_instance_alarms
 
 
 @session_auth
@@ -12,6 +13,17 @@ def delete_alarm(AlarmName: str,
     # delete alarm
     response = cloudwatch_client.delete_alarms(AlarmNames=[AlarmName])
     return response
+
+@session_auth
+def delete_instance_alarm(instance_id,
+                          session=None):
+    # terminate associated alarms
+    alarm_response = list_instance_alarms(instance_id=instance_id)
+    MetricAlarms = alarm_response['MetricAlarms']
+    cloudwatch_controller = session.client('cloudwatch')
+    for alarm in MetricAlarms:
+        alarm_name = alarm['AlarmName']
+        cloudwatch_controller.delete_alarms(AlarmNames=[alarm_name])
 
 
 @session_auth

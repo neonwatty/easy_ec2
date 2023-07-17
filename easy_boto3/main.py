@@ -10,7 +10,7 @@ from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
 from easy_boto3.ec2.list import list_all, list_running, list_stopped
 from easy_boto3.cloudwatch.create import create_cpu_alarm
-from easy_boto3.cloudwatch.list import list_alarms
+from easy_boto3.cloudwatch.list import list_alarms, list_instance_alarms
 from easy_boto3.cloudwatch.delete import delete_alarm
 
 
@@ -25,6 +25,7 @@ class EasyBoto3:
 
         self.create_cpu_alarm = create_cpu_alarm
         self.list_all_alarms = list_alarms
+        self.list_instance_alarms = list_instance_alarms
         self.delete_alarm = delete_alarm
 
     def profile(self, sub_operation, **kwargs):
@@ -54,8 +55,10 @@ class EasyBoto3:
     def cloudwatch(self, sub_operation, **kwargs):
         if sub_operation == "create":
             return self.create_cpu_alarm(**kwargs)
-        elif sub_operation == "list":
+        elif sub_operation == "list_all":
             return self.list_all_alarms(**kwargs)
+        elif sub_operation == "list_instance":
+            return self.list_instance_alarms(**kwargs)
         elif sub_operation == "delete":
             return self.delete_alarm(**kwargs)
         else:
@@ -91,16 +94,18 @@ if __name__ == "__main__":
 
                     # create alarm
                     alarm_details = EasyBoto3().cloudwatch("create", **alarm_instance_details)
+        if args[1] == 'alarm':
+            if args[2] == 'list_instance':
+                instance_id = args[3]
+                alarm_list = EasyBoto3().cloudwatch(args[2], instance_id=instance_id)
         if args[2] == "stop":
             if args[1] == "ec2":
                 instance_id = args[3]
                 stop_details = EasyBoto3().ec2("stop", instance_id=instance_id)
-                print(stop_details)
         if args[2] == "terminate":
             if args[1] == "ec2":
                 instance_id = args[3]
                 terminate_details = EasyBoto3().ec2("terminate", instance_id=instance_id)
-                print(terminate_details)
     elif len(args) == 3:
         if args[1] == "ec2":
             if 'list' in args[2]:
@@ -113,7 +118,14 @@ if __name__ == "__main__":
                     instance_list = EasyBoto3().ec2(args[2])
                 else:
                     print("Invalid sub-operation for 'ec2'")
-                print(instance_list)
+                for item in instance_list:
+                    print(item)
+        if args[1] == 'alarm':
+            if args[2] == 'list_all':
+                alarm_list = EasyBoto3().cloudwatch(args[2])
+                for item in alarm_list:
+                    print(item)
+
 
 
 
