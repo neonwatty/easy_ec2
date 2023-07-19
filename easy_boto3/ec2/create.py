@@ -5,15 +5,12 @@ from easy_boto3.ec2.connect import get_public_ip, test_connection
 
 @session_auth
 def create_instance(KeyName: str,
-                    UserName: str,
                     InstanceName='example_worker',
                     InstanceType='t2.micro',
                     ImageId='ami-03f65b8614a860c29',
                     BlockDeviceMappings=None,
                     Groups=None,
                     UserData: str = None,
-                    test_connection: bool = False,
-                    add_to_known_hosts: bool = False,
                     session=None) -> object:
 
     # create ec2 controller from session

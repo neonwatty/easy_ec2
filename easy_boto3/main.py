@@ -1,6 +1,7 @@
 import sys
 from easy_boto3.profile import profile
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
+from easy_boto3.ec2.ssh import add_host
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
@@ -81,25 +82,21 @@ class Application:
             if self.args[2] == "create" and ".yaml" in self.args[3]:
                 config = self.args[3]
                 self.create_ec2_instance(config)
-            if self.args[2] == "check_cloud_init_logs":
+            elif self.args[2] == "stop":
                 instance_id = self.args[3]
-                self.check_cloud_init_logs(instance_id)
+                self.stop_ec2_instance(instance_id)
+            elif self.args[2] == "terminate":
+                instance_id = self.args[3]
+                self.terminate_ec2_instance(instance_id)
+            elif self.args[2] == "check_cloud_init_logs":
+                instance_id = self.args[3]
+                self.check_cloud_init_logs(instance_id)    
         elif self.args[1] == 'alarm':
             if self.args[2] == 'list_instance':
                 instance_id = self.args[3]
                 self.list_alarm_instance(instance_id)
             else:
                 print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
-
-        elif self.args[2] == "stop":
-            if self.args[1] == "ec2":
-                instance_id = self.args[3]
-                self.stop_ec2_instance(instance_id)
-
-        elif self.args[2] == "terminate":
-            if self.args[1] == "ec2":
-                instance_id = self.args[3]
-                self.terminate_ec2_instance(instance_id)
         else:
             print(f"Invalid operation / sub-operation '{self.args}'")
 
@@ -116,10 +113,33 @@ class Application:
                 print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
 
     def create_ec2_instance(self, config):
-        profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
+        # readin config file
+        profile_name, ec2_instance_details, alarm_instance_details, ssh_instance_details = ec2_config_parser(config)
+
+        # set aws profile name
         self.easy_boto3.profile("set", profile_name=profile_name)
+
+        # create ec2 instance
         launch_details = self.easy_boto3.ec2("create", **ec2_instance_details)
         print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
+
+        # unpack ssh_details
+        ssh_config_settings = ssh_instance_details['Config']
+        ssh_options = ssh_instance_details['Options']
+
+        # set host if present in config
+        if 'Host' in list(ssh_config_settings.keys()):
+            host = ssh_config_settings['Host']
+
+            # package host_info - remove Host key and add public_ip
+            del ssh_config_settings['Host']
+            ssh_config_settings['HostName'] = launch_details.public_ip
+            print(ssh_config_settings)
+
+            # add host to ssh config
+            add_host(host, ssh_config_settings)
+
+        # set alarm if present in config
         if alarm_instance_details is not None:
             alarm_instance_details['instance_id'] = launch_details.id
             alarm_details = self.easy_boto3.cloudwatch("create", **alarm_instance_details)
@@ -157,7 +177,7 @@ class Application:
         alarm_list = self.easy_boto3.cloudwatch("list_all")
         for item in alarm_list:
             print(item)
-    
+
     def ec2_cloud_init_logs(self, instance_ip, config):
         profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
         self.check_cloud_init_logs(instance_ip, ec2_instance_details['UserName'], ec2_instance_details['KeyName'])

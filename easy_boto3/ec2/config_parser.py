@@ -14,10 +14,16 @@ def parse(base_config):
     profile_name = base_config['aws_profile']
     ec2_instance_config = base_config['ec2_instance']
     instance_details = ec2_instance_config['instance_details']
-    ssh_details = ec2_instance_config['ssh_details']
+    ssh_instance_details = ec2_instance_config['ssh_details']
     script_details = ec2_instance_config['script_details']
     alarm_details = None
     alarm_instance_details = None
+
+    # re-convert ssh_instance_details IdentityFile to yes/no 
+    if ssh_instance_details['Config']['IdentityFile'] == True:
+        ssh_instance_details['Config']['IdentityFile'] = 'yes'
+    elif ssh_instance_details['Config']['IdentityFile'] == False:
+        ssh_instance_details['Config']['IdentityFile'] = 'no'
 
     # setup alarm_details if present in base_config
     if 'alarm_details' in list(base_config.keys()):
@@ -52,16 +58,8 @@ def parse(base_config):
             }
           }],
         'UserData': UserData,
-        'KeyName': ssh_details['KeyName'],
-        'UserName': ssh_details['UserName']
+        'KeyName': ssh_instance_details['Config']['IdentityFile'].split('/')[-1].split('.')[0],
     }
 
-
-    if 'add_to_known_hosts' in list(ssh_details.keys()):
-        ec2_instance_details['add_to_known_hosts'] = ssh_details['add_to_known_hosts']
-
-    if 'test_connection' in list(ssh_details.keys()):
-        ec2_instance_details['test_connection'] = ssh_details['test_connection']
-
     # return dictionary of instance details
-    return profile_name, ec2_instance_details, alarm_instance_details
+    return profile_name, ec2_instance_details, alarm_instance_details, ssh_instance_details

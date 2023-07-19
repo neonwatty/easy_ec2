@@ -1057,6 +1057,21 @@ files = [
 ]
 
 [[package]]
+name = "sshconf"
+version = "0.2.5"
+description = "Lightweight SSH config library."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "sshconf-0.2.5-py3-none-any.whl", hash = "sha256:0244ebe7de4979e72b36d81c00d5d1fd693c6be9d41a61f1feaf0e9552ca5774"},
+    {file = "sshconf-0.2.5.tar.gz", hash = "sha256:e8a384cafb6346d0892d9bd68fc0be81604bc2479f19daa6950e7cd86e8e5c27"},
+]
+
+[package.extras]
+test = ["codecov", "pytest", "pytest-cov"]
+
+[[package]]
 name = "stack-data"
 version = "0.6.2"
 description = "Extract data from python stack frames and tracebacks for informative displays"
@@ -1227,4 +1242,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "d5a2827db3788dd839ad1d827fce5cb38a1ba3c2d358868da3eb923c645ac816"
+content-hash = "9704c2390bf1a04158f81e41eac5e7285803ac8e7436023cdd6098a58b5f4577"
