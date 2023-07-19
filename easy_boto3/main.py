@@ -142,6 +142,7 @@ class Application:
         ssh_options = ssh_instance_details['Options']
 
         # set host if present in config
+        host = None
         if 'Host' in list(ssh_config_settings.keys()):
             host = ssh_config_settings['Host']
             del ssh_config_settings['Host']
@@ -149,11 +150,11 @@ class Application:
         else:  # by default, set host to instance_id
             host = launch_details.id
 
-            # package host_info - remove Host key and add public_ip
-            ssh_config_settings['HostName'] = launch_details.public_ip
+        # package host_info - remove Host key and add public_ip
+        ssh_config_settings['HostName'] = launch_details.public_ip
 
-            # add host to ssh config
-            add_host(host, ssh_config_settings)
+        # add host to ssh config
+        add_host(host, ssh_config_settings)
 
         # set alarm if present in config
         if alarm_instance_details is not None:
