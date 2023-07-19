@@ -11,6 +11,8 @@ startup_scripts/
 .ipynb_checkpoints
 .pyc
 .ipynb
+.lock
+poetry.lock
 wip_demos/
 
 # C extensions
