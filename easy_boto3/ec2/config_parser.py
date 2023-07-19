@@ -1,5 +1,5 @@
 import yaml
-from easy_boto3.utilities.script_manager import read_startup_script
+from easy_boto3.ec2.script import read_startup_script, inject_aws_creds, add_ssh_forwarding, add_github_host
 
 
 def parse(base_config):
@@ -42,6 +42,16 @@ def parse(base_config):
     # read in startup script
     startup_script_filepath = script_details['filepath']
     UserData = read_startup_script(startup_script_filepath)
+
+    # inject aws creds into startup script (optional)
+    if script_details['inject_aws_creds'] == True:
+        UserData = inject_aws_creds(UserData)
+    if script_details['ssh_forwarding'] == True:
+        UserData = add_ssh_forwarding(UserData)
+    if script_details['github_host'] == True:
+        UserData = add_github_host(UserData)
+
+    print(UserData)
 
     # create dictionary of instance details
     ec2_instance_details = {
