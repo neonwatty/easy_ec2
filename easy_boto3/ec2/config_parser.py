@@ -1,5 +1,6 @@
 import yaml
 from easy_boto3.ec2.script import read_startup_script, inject_aws_creds, add_ssh_forwarding, add_github_host
+from easy_boto3.profile.profile import check_credentials
 
 
 def parse(base_config):
@@ -44,11 +45,12 @@ def parse(base_config):
     UserData = read_startup_script(startup_script_filepath)
 
     # inject aws creds into startup script (optional)
-    if script_details['inject_aws_creds'] == True:
-        UserData = inject_aws_creds(UserData)
-    if script_details['ssh_forwarding'] == True:
+    if script_details['inject_aws_creds'] is True:
+        aws_creds = check_credentials(profile_name)
+        UserData = inject_aws_creds(UserData, aws_creds)
+    if script_details['ssh_forwarding'] is True:
         UserData = add_ssh_forwarding(UserData)
-    if script_details['github_host'] == True:
+    if script_details['github_host'] is True:
         UserData = add_github_host(UserData)
 
     print(UserData)

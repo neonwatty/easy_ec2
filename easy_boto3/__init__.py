@@ -4,6 +4,7 @@ from pathlib import Path
 # path to aws config directory
 aws_config_directory = os.path.expanduser('~') + '/.aws'
 aws_config_path = aws_config_directory + '/config'
+aws_creds_path = aws_config_directory + '/credentials'
 
 # construct path to internal yaml file
 file_path = os.path.abspath(__file__)

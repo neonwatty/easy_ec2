@@ -9,7 +9,8 @@ def read_startup_script(startup_script_path):
 
 
 # inject aws creds into base script
-def inject_aws_creds(startup_script: str) -> str:
+def inject_aws_creds(startup_script: str,
+                     aws_metadata: dict) -> str:
     # replace aws_account_id and aws_access_key_id
     startup_script = startup_script.replace('$aws_access_key_id',
                                             aws_metadata['aws_access_key_id'])
