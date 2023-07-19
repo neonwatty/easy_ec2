@@ -5,12 +5,16 @@
 `easy_boto3` simplifies `boto3` usage by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS resources using `boto3` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file.
 
 ### Contents
-- [`easy_boto3` CLI and Python `boto3` made simple](#easy_boto3-cli-and-python-boto3-made-simple)
+- [`boto3` made easy](#boto3-made-easy)
     - [Contents](#contents)
   - [Installation](#installation)
   - [Using `easy_boto3` CLI](#using-easy_boto3-cli)
     - [Creating an ec2 instance with cloudwatch alarm](#creating-an-ec2-instance-with-cloudwatch-alarm)
+    - [Show instance cloud\_init logs](#show-instance-cloud_init-logs)
+    - [Show instance syslog logs](#show-instance-syslog-logs)
     - [Listing ec2 instances](#listing-ec2-instances)
+    - [Stopping an ec2 instance](#stopping-an-ec2-instance)
+    - [Starting a stopped an ec2 instance](#starting-a-stopped-an-ec2-instance)
     - [Termianting ec2 instances by id](#termianting-ec2-instances-by-id)
   - [Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
     - [Creating an ec2 instance](#creating-an-ec2-instance)
@@ -106,14 +110,19 @@ ec2_instance:
       - <your security group>
 
   ssh_details: 
-    KeyName: <your ssh key located in ~/.ssh>
-    UserName: ubuntu
-    add_to_known_hosts: true
-    test_connection: true
+    Config:
+      User: ubuntu
+      IdentityFile: <path to ssh key>
+      ForwardAgent: yes
+    Options:
+      add_to_known_hosts: true
+      test_connection: true
 
   script_details: 
     filepath: <path_to_startup>
-    inject_aws_creds: false
+    inject_aws_creds: true
+    ssh_forwarding: true
+    github_host: true
 
 alarm_details:
   ComparisonOperator: GreaterThanOrEqualToThreshold
@@ -129,6 +138,18 @@ Using `easy_boto3` and this configuration `config.yaml` the same task - instanti
 
 ```bash
 easy_boto3 ec2 create config.yaml
+```
+
+### Show instance cloud_init logs
+
+```bash
+easy_boto3 ec2 check_cloud_init_logs <instance_id>
+```
+
+### Show instance syslog logs
+
+```bash
+easy_boto3 ec2 check_syslog <instance_id>
 ```
 
 ### Listing ec2 instances 
@@ -167,6 +188,17 @@ easy_boto3 ec2 list_stopped
 ```bash
 easy_boto3 ec2 list_terminated
 ```
+
+### Stopping an ec2 instance
+```bash
+easy_boto3 ec2 stop <instance_id>
+```
+
+### Starting a stopped an ec2 instance
+```bash
+easy_boto3 ec2 start <instance_id>
+```
+
 
 ### Termianting ec2 instances by id  
 

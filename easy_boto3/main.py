@@ -5,6 +5,7 @@ from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_da
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
+from easy_boto3.ec2.start import start_instance
 from easy_boto3.ec2.list import list_all, list_running, list_stopped
 from easy_boto3.ec2.logs import check_cloud_init_logs, check_syslog
 from easy_boto3.cloudwatch.create import create_cpu_alarm
@@ -18,6 +19,7 @@ class EasyBoto3:
         self.create_instance = create_instance
         self.stop_instance = stop_instance
         self.terminate_instance = terminate_instance
+        self.start_instance = start_instance
         self.list_all_instances = list_all
         self.list_stopped_instances = list_stopped
         self.list_running_instances = list_running
@@ -42,6 +44,8 @@ class EasyBoto3:
             return self.create_instance(**kwargs)
         elif sub_operation == "stop":
             return self.stop_instance(**kwargs)
+        elif sub_operation == "start":
+            return self.start_instance(**kwargs)
         elif sub_operation == "terminate":
             return self.terminate_instance(**kwargs)
         elif sub_operation == "list_all":
@@ -92,6 +96,9 @@ class Application:
             elif self.args[2] == "terminate":
                 instance_id = self.args[3]
                 self.terminate_ec2_instance(instance_id)
+            elif self.args[2] == "start":
+                instance_id = self.args[3]
+                self.start_ec2_instance(instance_id)
             elif self.args[2] == "check_cloud_init_logs":
                 instance_id = self.args[3]
                 self.check_cloud_init_logs(instance_id)
@@ -206,6 +213,9 @@ class Application:
 
     def stop_ec2_instance(self, instance_id):
         stop_details = self.easy_boto3.ec2("stop", instance_id=instance_id)
+
+    def start_ec2_instance(self, instance_id):
+        start_details = self.easy_boto3.ec2("start", instance_id=instance_id)
 
     def terminate_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id

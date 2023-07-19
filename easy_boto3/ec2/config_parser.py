@@ -53,8 +53,6 @@ def parse(base_config):
     if script_details['github_host'] is True:
         UserData = add_github_host(UserData)
 
-    print(UserData)
-
     # create dictionary of instance details
     ec2_instance_details = {
         'InstanceName': instance_details['InstanceName'],
