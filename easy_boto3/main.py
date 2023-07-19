@@ -1,7 +1,7 @@
 import sys
 from easy_boto3.profile import profile
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
-from easy_boto3.ec2.ssh import add_host
+from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
@@ -10,6 +10,7 @@ from easy_boto3.ec2.logs import check_cloud_init_logs
 from easy_boto3.cloudwatch.create import create_cpu_alarm
 from easy_boto3.cloudwatch.list import list_alarms, list_instance_alarms
 from easy_boto3.cloudwatch.delete import delete_alarm
+from easy_boto3.ec2.connect import get_public_ip
 
 
 class EasyBoto3:
@@ -130,9 +131,12 @@ class Application:
         # set host if present in config
         if 'Host' in list(ssh_config_settings.keys()):
             host = ssh_config_settings['Host']
+            del ssh_config_settings['Host']
+
+        else:  # by default, set host to instance_id
+            host = launch_details.id
 
             # package host_info - remove Host key and add public_ip
-            del ssh_config_settings['Host']
             ssh_config_settings['HostName'] = launch_details.public_ip
             print(ssh_config_settings)
 
@@ -171,7 +175,14 @@ class Application:
         stop_details = self.easy_boto3.ec2("stop", instance_id=instance_id)
 
     def terminate_ec2_instance(self, instance_id):
+        # lookup public_ip associated with instance_id
+        instance_ip = get_public_ip(instance_id)
+
+        # delete instance and alarm associated with instance_id
         terminate_details = self.easy_boto3.ec2("terminate", instance_id=instance_id)
+
+        # delete entry in ~/.easy_boto3/ssh_config associated with HostName = instance_ip
+        delete_host_by_hostname(instance_ip)
 
     def list_all_alarms(self):
         alarm_list = self.easy_boto3.cloudwatch("list_all")

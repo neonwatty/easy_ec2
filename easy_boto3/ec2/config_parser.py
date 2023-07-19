@@ -19,11 +19,11 @@ def parse(base_config):
     alarm_details = None
     alarm_instance_details = None
 
-    # re-convert ssh_instance_details IdentityFile to yes/no 
-    if ssh_instance_details['Config']['IdentityFile'] == True:
-        ssh_instance_details['Config']['IdentityFile'] = 'yes'
-    elif ssh_instance_details['Config']['IdentityFile'] == False:
-        ssh_instance_details['Config']['IdentityFile'] = 'no'
+    # re-convert ssh_instance_details IdentityFile to yes/no
+    if ssh_instance_details['Config']['ForwardAgent'] == True:
+        ssh_instance_details['Config']['ForwardAgent'] = 'yes'
+    elif ssh_instance_details['Config']['ForwardAgent'] == False:
+        ssh_instance_details['Config']['ForwardAgent'] = 'no'
 
     # setup alarm_details if present in base_config
     if 'alarm_details' in list(base_config.keys()):

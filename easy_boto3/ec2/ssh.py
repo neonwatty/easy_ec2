@@ -48,3 +48,29 @@ def delete_host(host,
     config = create_config_object()
     config.remove(host)
     config.save()
+
+
+@session_auth
+def delete_host_by_hostname(instance_ip,
+                            session=None):
+    # get ssh config
+    config = create_config_object()
+    
+    # loop over hosts, find host with matching host_name = instance_ip
+    host_to_remove = None
+    for host in config.hosts():
+        # lookup host_data config
+        host_data = config.host(host)
+
+        # lookup match for host_name = instance_ip
+        if host_data['hostname'] == instance_ip:
+            host_to_remove = host
+            break
+
+    if host_to_remove is not None:
+        config.remove(host_to_remove)
+        config.save()
+
+        print(f"Removing host with hostname '{instance_ip}' from ssh config")
+    else:
+        print(f"Host with hostname '{instance_ip}' NOT found in ssh config")

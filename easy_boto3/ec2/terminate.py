@@ -20,7 +20,7 @@ def terminate_instance(instance_id: str,
         # Delete alarm if it exists
         delete_instance_alarm(instance_id)
 
-        message = f"Instance {instance_id} terminated along with any associated cpu alarms"
+        message = f"Terminating instance {instance_id} along with any associated cpu alarms"
         print(message)
     else:
         message = f"Instance {instance_id} does not exist"

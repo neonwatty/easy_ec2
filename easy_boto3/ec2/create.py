@@ -46,7 +46,7 @@ def create_instance(KeyName: str,
     # Wait for the instance to be running
     instances[0].wait_until_running()
 
-    # get public ip of instance 
+    # get public ip of instance
     public_ip = get_public_ip(instances[0].id)
 
     # add public_ip to instances[0]
