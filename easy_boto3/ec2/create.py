@@ -1,15 +1,19 @@
 from easy_boto3.setup_session import setup
 session_auth = setup()
+from easy_boto3.ec2.connect import get_public_ip, test_connection
 
 
 @session_auth
 def create_instance(KeyName: str,
+                    UserName: str,
                     InstanceName='example_worker',
                     InstanceType='t2.micro',
                     ImageId='ami-03f65b8614a860c29',
                     BlockDeviceMappings=None,
                     Groups=None,
                     UserData: str = None,
+                    test_connection: bool = False,
+                    add_to_known_hosts: bool = False,
                     session=None) -> object:
 
     # create ec2 controller from session
@@ -45,7 +49,11 @@ def create_instance(KeyName: str,
     # Wait for the instance to be running
     instances[0].wait_until_running()
 
-    # Print the instance ID
-    print("Instance created:", instances[0].id)
+    # get public ip of instance 
+    public_ip = get_public_ip(instances[0].id)
 
+    # add public_ip to instances[0]
+    instances[0].public_ip = public_ip
+
+    # return instance object
     return instances[0]

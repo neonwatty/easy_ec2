@@ -41,4 +41,4 @@ def create_cpu_alarm(instance_id=None,
             Dimensions=Dimensions
         )
 
-    return result
+    return {'AlarmName': AlarmName}

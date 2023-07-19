@@ -1,5 +1,5 @@
 import yaml
-from easy_boto3.utilities.script_manager import read_startup_script 
+from easy_boto3.utilities.script_manager import read_startup_script
 
 
 def parse(base_config):
@@ -43,7 +43,6 @@ def parse(base_config):
         'InstanceType': instance_details['InstanceType'],
         'ImageId': instance_details['ImageId'],
         'Groups': instance_details['Groups'],
-        'KeyName': ssh_details['KeyName'],
         'BlockDeviceMappings': [{
             'DeviceName': instance_details['BlockDeviceMappings']['DeviceName'],
             'Ebs': {
@@ -52,8 +51,17 @@ def parse(base_config):
                 'DeleteOnTermination': instance_details['BlockDeviceMappings']['Ebs']['DeleteOnTermination']
             }
           }],
-        'UserData': UserData
+        'UserData': UserData,
+        'KeyName': ssh_details['KeyName'],
+        'UserName': ssh_details['UserName']
     }
+
+
+    if 'add_to_known_hosts' in list(ssh_details.keys()):
+        ec2_instance_details['add_to_known_hosts'] = ssh_details['add_to_known_hosts']
+
+    if 'test_connection' in list(ssh_details.keys()):
+        ec2_instance_details['test_connection'] = ssh_details['test_connection']
 
     # return dictionary of instance details
     return profile_name, ec2_instance_details, alarm_instance_details

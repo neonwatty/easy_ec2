@@ -14,6 +14,7 @@ def delete_alarm(AlarmName: str,
     response = cloudwatch_client.delete_alarms(AlarmNames=[AlarmName])
     return response
 
+
 @session_auth
 def delete_instance_alarm(instance_id,
                           session=None):
@@ -24,6 +25,7 @@ def delete_instance_alarm(instance_id,
     for alarm in MetricAlarms:
         alarm_name = alarm['AlarmName']
         cloudwatch_controller.delete_alarms(AlarmNames=[alarm_name])
+        # print(f'Alarm {alarm_name} deleted')
 
 
 @session_auth

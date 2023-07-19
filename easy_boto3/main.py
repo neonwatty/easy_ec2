@@ -1,14 +1,11 @@
-
-
 import sys
-import yaml
-import fire
 from easy_boto3.profile import profile
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
 from easy_boto3.ec2.list import list_all, list_running, list_stopped
+from easy_boto3.ec2.logs import check_cloud_init_logs
 from easy_boto3.cloudwatch.create import create_cpu_alarm
 from easy_boto3.cloudwatch.list import list_alarms, list_instance_alarms
 from easy_boto3.cloudwatch.delete import delete_alarm
@@ -22,6 +19,7 @@ class EasyBoto3:
         self.list_all_instances = list_all
         self.list_stopped_instances = list_stopped
         self.list_running_instances = list_running
+        self.check_cloud_init_logs = check_cloud_init_logs
 
         self.create_cpu_alarm = create_cpu_alarm
         self.list_all_alarms = list_alarms
@@ -49,6 +47,8 @@ class EasyBoto3:
             return self.list_stopped_instances(**kwargs)
         elif sub_operation == "list_running":
             return self.list_running_instances(**kwargs)
+        elif sub_operation == "check_cloud_init_logs":
+            return self.check_cloud_init_logs(**kwargs)
         else:
             print("Invalid sub-operation for 'ec2'")
 
@@ -65,68 +65,108 @@ class EasyBoto3:
             print("Invalid sub-operation for 'cloudwatch'")
 
 
+class Application:
+    def __init__(self):
+        self.args = dict(enumerate(sys.argv))
+        self.easy_boto3 = EasyBoto3()
+
+    def run(self):
+        if len(self.args) == 4:
+            self.process_four_arguments()
+        elif len(self.args) == 3:
+            self.process_three_arguments()
+
+    def process_four_arguments(self):
+        if self.args[1] == "ec2":
+            if self.args[2] == "create" and ".yaml" in self.args[3]:
+                config = self.args[3]
+                self.create_ec2_instance(config)
+            if self.args[2] == "check_cloud_init_logs":
+                instance_id = self.args[3]
+                self.check_cloud_init_logs(instance_id)
+        elif self.args[1] == 'alarm':
+            if self.args[2] == 'list_instance':
+                instance_id = self.args[3]
+                self.list_alarm_instance(instance_id)
+            else:
+                print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
+
+        elif self.args[2] == "stop":
+            if self.args[1] == "ec2":
+                instance_id = self.args[3]
+                self.stop_ec2_instance(instance_id)
+
+        elif self.args[2] == "terminate":
+            if self.args[1] == "ec2":
+                instance_id = self.args[3]
+                self.terminate_ec2_instance(instance_id)
+        else:
+            print(f"Invalid operation / sub-operation '{self.args}'")
+
+    def process_three_arguments(self):
+        if self.args[1] == "ec2":
+            if 'list' in self.args[2]:
+                self.list_ec2_instances(self.args[2])
+            else:
+                print(f"Invalid sub-operation '{self.args[2]}' for 'ec2'")
+        elif self.args[1] == 'alarm':
+            if self.args[2] == 'list_all':
+                self.list_all_alarms()
+            else:
+                print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
+
+    def create_ec2_instance(self, config):
+        profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
+        self.easy_boto3.profile("set", profile_name=profile_name)
+        launch_details = self.easy_boto3.ec2("create", **ec2_instance_details)
+        print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
+        if alarm_instance_details is not None:
+            alarm_instance_details['instance_id'] = launch_details.id
+            alarm_details = self.easy_boto3.cloudwatch("create", **alarm_instance_details)
+            print(f"Alarm created - alarm_name = {alarm_details['AlarmName']}")
+
+    def check_cloud_init_logs(self, instance_id):
+        instance_ip = self.easy_boto3.ec2("list_running", instance_id=instance_id)
+        self.easy_boto3.ec2("check_cloud_init_logs", instance_ip=instance_ip, config=config)
+
+    def list_ec2_instances(self, sub_operation):
+        instance_list = []
+        if sub_operation == "list_all":
+            instance_list = self.easy_boto3.ec2(sub_operation)
+        elif sub_operation == "list_stopped":
+            instance_list = self.easy_boto3.ec2(sub_operation)
+        elif sub_operation == "list_running":
+            instance_list = self.easy_boto3.ec2(sub_operation)
+        else:
+            print("Invalid sub-operation for 'ec2'")
+        for item in instance_list:
+            print(item)
+
+    def list_alarm_instance(self, instance_id):
+        alarm_list = self.easy_boto3.cloudwatch("list_instance", instance_id=instance_id)
+        for item in alarm_list:
+            print(item)
+
+    def stop_ec2_instance(self, instance_id):
+        stop_details = self.easy_boto3.ec2("stop", instance_id=instance_id)
+
+    def terminate_ec2_instance(self, instance_id):
+        terminate_details = self.easy_boto3.ec2("terminate", instance_id=instance_id)
+
+    def list_all_alarms(self):
+        alarm_list = self.easy_boto3.cloudwatch("list_all")
+        for item in alarm_list:
+            print(item)
+    
+    def ec2_cloud_init_logs(self, instance_ip, config):
+        profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
+        self.check_cloud_init_logs(instance_ip, ec2_instance_details['UserName'], ec2_instance_details['KeyName'])
+
+
 def main():
-    # create a dictionary from input args enumerating each command line argument given
-    # and its value
-    args = dict(enumerate(sys.argv))
-
-    # if there are four arguments, assume the final is config for now
-    if len(args) == 4:
-        # if final argument contains '.yaml' assume it is config
-        if args[2] == "create" and ".yaml" in args[3]:
-            # get config path
-            config = args[3]
-
-            # ec2 config parser
-            if args[1] == "ec2":
-                profile_name, ec2_instance_details, alarm_instance_details = ec2_config_parser(config)
-
-                # set profile
-                EasyBoto3().profile("set", profile_name=profile_name)
-
-                # launch instance
-                launch_details = EasyBoto3().ec2("create", **ec2_instance_details)
-
-                # if alarm_details is not None, setup alarm
-                if alarm_instance_details is not None:
-                    # add instance_id to alarm_instance_details
-                    alarm_instance_details['instance_id'] = launch_details.id
-
-                    # create alarm
-                    alarm_details = EasyBoto3().cloudwatch("create", **alarm_instance_details)
-        if args[1] == 'alarm':
-            if args[2] == 'list_instance':
-                instance_id = args[3]
-                alarm_list = EasyBoto3().cloudwatch(args[2], instance_id=instance_id)
-        if args[2] == "stop":
-            if args[1] == "ec2":
-                instance_id = args[3]
-                stop_details = EasyBoto3().ec2("stop", instance_id=instance_id)
-        if args[2] == "terminate":
-            if args[1] == "ec2":
-                instance_id = args[3]
-                terminate_details = EasyBoto3().ec2("terminate", instance_id=instance_id)
-    elif len(args) == 3:
-        if args[1] == "ec2":
-            if 'list' in args[2]:
-                instance_list = []
-                if args[2] == "list_all":
-                    instance_list = EasyBoto3().ec2(args[2])
-                elif args[2] == "list_stopped":
-                    instance_list = EasyBoto3().ec2(args[2])
-                elif args[2] == "list_running":
-                    instance_list = EasyBoto3().ec2(args[2])
-                else:
-                    print("Invalid sub-operation for 'ec2'")
-                for item in instance_list:
-                    print(item)
-        if args[1] == 'alarm':
-            if args[2] == 'list_all':
-                alarm_list = EasyBoto3().cloudwatch(args[2])
-                for item in alarm_list:
-                    print(item)
+    app = Application()
+    app.run()
 
 
 if __name__ == "__main__":
-    # run main
     main()

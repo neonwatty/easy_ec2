@@ -16,9 +16,12 @@ def terminate_instance(instance_id: str,
     if len(response["Reservations"]) > 0:
         # Terminate instance
         ec2_controller.terminate_instances(InstanceIds=[instance_id])
-        
+
         # Delete alarm if it exists
         delete_instance_alarm(instance_id)
-        return f"Instance {instance_id} terminated along with any associated cpu alarms"
+
+        message = f"Instance {instance_id} terminated along with any associated cpu alarms"
+        print(message)
     else:
-        return f"Instance {instance_id} does not exist"
+        message = f"Instance {instance_id} does not exist"
+        print(message)
