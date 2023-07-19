@@ -49,13 +49,29 @@ def delete_host(host,
     config.remove(host)
     config.save()
 
+@session_auth
+def lookup_host_data_by_hostname(instance_ip,
+                                 session=None):
+
+    # get ssh config 
+    config = create_config_object()
+
+    # loop over hosts, find host with matching host_name = instance_ip
+    for host in config.hosts():
+        # lookup host_data config
+        host_data = config.host(host)
+
+        # lookup match for host_name = instance_ip
+        if host_data['hostname'] == instance_ip:
+            return host_data
+
 
 @session_auth
 def delete_host_by_hostname(instance_ip,
                             session=None):
     # get ssh config
     config = create_config_object()
-    
+
     # loop over hosts, find host with matching host_name = instance_ip
     host_to_remove = None
     for host in config.hosts():

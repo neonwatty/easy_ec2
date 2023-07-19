@@ -1,12 +1,12 @@
 import sys
 from easy_boto3.profile import profile
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
-from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname
+from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
 from easy_boto3.ec2.list import list_all, list_running, list_stopped
-from easy_boto3.ec2.logs import check_cloud_init_logs
+from easy_boto3.ec2.logs import check_cloud_init_logs, check_syslog
 from easy_boto3.cloudwatch.create import create_cpu_alarm
 from easy_boto3.cloudwatch.list import list_alarms, list_instance_alarms
 from easy_boto3.cloudwatch.delete import delete_alarm
@@ -22,6 +22,7 @@ class EasyBoto3:
         self.list_stopped_instances = list_stopped
         self.list_running_instances = list_running
         self.check_cloud_init_logs = check_cloud_init_logs
+        self.check_syslog = check_syslog
 
         self.create_cpu_alarm = create_cpu_alarm
         self.list_all_alarms = list_alarms
@@ -51,6 +52,8 @@ class EasyBoto3:
             return self.list_running_instances(**kwargs)
         elif sub_operation == "check_cloud_init_logs":
             return self.check_cloud_init_logs(**kwargs)
+        elif sub_operation == "check_syslog":
+            return self.check_syslog(**kwargs)
         else:
             print("Invalid sub-operation for 'ec2'")
 
@@ -91,7 +94,10 @@ class Application:
                 self.terminate_ec2_instance(instance_id)
             elif self.args[2] == "check_cloud_init_logs":
                 instance_id = self.args[3]
-                self.check_cloud_init_logs(instance_id)    
+                self.check_cloud_init_logs(instance_id)
+            elif self.args[2] == "check_syslog":
+                instance_id = self.args[3]
+                self.check_syslog(instance_id)
         elif self.args[1] == 'alarm':
             if self.args[2] == 'list_instance':
                 instance_id = self.args[3]
@@ -138,7 +144,6 @@ class Application:
 
             # package host_info - remove Host key and add public_ip
             ssh_config_settings['HostName'] = launch_details.public_ip
-            print(ssh_config_settings)
 
             # add host to ssh config
             add_host(host, ssh_config_settings)
@@ -150,8 +155,36 @@ class Application:
             print(f"Alarm created - alarm_name = {alarm_details['AlarmName']}")
 
     def check_cloud_init_logs(self, instance_id):
-        instance_ip = self.easy_boto3.ec2("list_running", instance_id=instance_id)
-        self.easy_boto3.ec2("check_cloud_init_logs", instance_ip=instance_ip, config=config)
+        # lookup public_ip associated with instance_id
+        instance_ip = get_public_ip(instance_id)
+
+        # use public_ip to lookup ssh_config_settings
+        host_data = lookup_host_data_by_hostname(instance_ip)
+
+        # read logs if host_data is not none
+        if host_data is not None:
+            ssh_username = host_data['user']
+            ssh_path_keypath = host_data['identityfile']
+            self.easy_boto3.ec2("check_cloud_init_logs",
+                                instance_ip=instance_ip,
+                                ssh_username=ssh_username,
+                                ssh_path_keypath=ssh_path_keypath)
+
+    def check_syslog(self, instance_id):
+        # lookup public_ip associated with instance_id
+        instance_ip = get_public_ip(instance_id)
+
+        # use public_ip to lookup ssh_config_settings
+        host_data = lookup_host_data_by_hostname(instance_ip)
+
+        # read logs if host_data is not none
+        if host_data is not None:
+            ssh_username = host_data['user']
+            ssh_path_keypath = host_data['identityfile']
+            self.easy_boto3.ec2("check_syslog",
+                                instance_ip=instance_ip,
+                                ssh_username=ssh_username,
+                                ssh_path_keypath=ssh_path_keypath)
 
     def list_ec2_instances(self, sub_operation):
         instance_list = []
