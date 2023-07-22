@@ -49,6 +49,7 @@ def delete_host(host,
     config.remove(host)
     config.save()
 
+
 @session_auth
 def lookup_host_data_by_hostname(instance_ip,
                                  session=None):

@@ -9,13 +9,18 @@
     - [Contents](#contents)
   - [Installation](#installation)
   - [Using `easy_boto3` CLI](#using-easy_boto3-cli)
-    - [Creating an ec2 instance with cloudwatch alarm](#creating-an-ec2-instance-with-cloudwatch-alarm)
-    - [Show instance cloud\_init logs](#show-instance-cloud_init-logs)
-    - [Show instance syslog logs](#show-instance-syslog-logs)
-    - [Listing ec2 instances](#listing-ec2-instances)
-    - [Stopping an ec2 instance](#stopping-an-ec2-instance)
-    - [Starting a stopped an ec2 instance](#starting-a-stopped-an-ec2-instance)
-    - [Termianting ec2 instances by id](#termianting-ec2-instances-by-id)
+    - [Managing ec2 instances](#managing-ec2-instances)
+      - [Creating an ec2 instance with cloudwatch alarm](#creating-an-ec2-instance-with-cloudwatch-alarm)
+      - [Show instance cloud\_init logs](#show-instance-cloud_init-logs)
+      - [Show instance syslog logs](#show-instance-syslog-logs)
+      - [Listing ec2 instances](#listing-ec2-instances)
+      - [Stopping an ec2 instance](#stopping-an-ec2-instance)
+      - [Starting a stopped an ec2 instance](#starting-a-stopped-an-ec2-instance)
+      - [Termianting ec2 instances by id](#termianting-ec2-instances-by-id)
+    - [Managing AWS profiles](#managing-aws-profiles)
+      - [List all AWS profiles in `~/.aws/credentials`](#list-all-aws-profiles-in-awscredentials)
+      - [List active AWS profile (currently used by `easy_boto3`)](#list-active-aws-profile-currently-used-by-easy_boto3)
+      - [Set active AWS profile (currently used by `easy_boto3`)](#set-active-aws-profile-currently-used-by-easy_boto3)
   - [Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
     - [Creating an ec2 instance](#creating-an-ec2-instance)
 
@@ -29,7 +34,9 @@ pip install easy-boto3
 
 ## Using `easy_boto3` CLI
 
-### Creating an ec2 instance with cloudwatch alarm
+### Managing ec2 instances
+
+#### Creating an ec2 instance with cloudwatch alarm
 
 `easy_boto3` allows you to translate a standard `boto3` pythonic infrastructure task like instantiating an `ec2` instance with an attached `cloudwatch` cpu usage alarm from complex pythonic implementation like the following 
 
@@ -140,19 +147,19 @@ Using `easy_boto3` and this configuration `config.yaml` the same task - instanti
 easy_boto3 ec2 create config.yaml
 ```
 
-### Show instance cloud_init logs
+#### Show instance cloud_init logs
 
 ```bash
 easy_boto3 ec2 check_cloud_init_logs <instance_id>
 ```
 
-### Show instance syslog logs
+#### Show instance syslog logs
 
 ```bash
 easy_boto3 ec2 check_syslog <instance_id>
 ```
 
-### Listing ec2 instances 
+#### Listing ec2 instances 
 
 You can use `easy_boto3` to easy see (all/ running / stopped / terminated) instances in your AWS account as follows.
 
@@ -189,18 +196,18 @@ easy_boto3 ec2 list_stopped
 easy_boto3 ec2 list_terminated
 ```
 
-### Stopping an ec2 instance
+#### Stopping an ec2 instance
 ```bash
 easy_boto3 ec2 stop <instance_id>
 ```
 
-### Starting a stopped an ec2 instance
+#### Starting a stopped an ec2 instance
 ```bash
 easy_boto3 ec2 start <instance_id>
 ```
 
 
-### Termianting ec2 instances by id  
+#### Termianting ec2 instances by id  
 
 You can use `easy_boto3` CLI to terminate an ec2 instance by id as follows
 
@@ -209,6 +216,29 @@ easy_boto3 ec2 terminate <instance_id>
 ```
 
 Note: by default this will delete any cloudwatch alarms associated with the instance.
+
+### Managing AWS profiles
+
+You can use `easy_boto3` CLI to manage AWS profiles as follows
+
+
+#### List all AWS profiles in `~/.aws/credentials`
+
+```bash
+easy_boto3 profile list_all
+```
+
+#### List active AWS profile (currently used by `easy_boto3`)
+
+```bash
+easy_boto3 profile list_active 
+```
+
+#### Set active AWS profile (currently used by `easy_boto3`)
+
+```bash
+easy_boto3 profile set <profile_name>
+```
 
 
 ## Using `easy_boto3`'s Python API

@@ -1,7 +1,7 @@
 import sys
 from easy_boto3.profile import ownership, validation, active
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
-from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname
+from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname, delete_host
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
@@ -118,10 +118,10 @@ class Application:
 
             elif self.args[2] == "start":
                 instance_id = self.args[3]
-                
+
                 # start instance
                 self.start_ec2_instance(instance_id)
-                
+
                 # adjust instance state in file
                 self.easy_boto3.profile("change_state", instance_id=instance_id, new_state="running")
 
@@ -264,13 +264,14 @@ class Application:
 
     def terminate_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id
-        instance_ip = get_public_ip(instance_id)
+        # instance_ip = get_public_ip(instance_id)
 
         # delete instance and alarm associated with instance_id
         terminate_details = self.easy_boto3.ec2("terminate", instance_id=instance_id)
 
         # delete entry in ~/.easy_boto3/ssh_config associated with HostName = instance_ip
-        delete_host_by_hostname(instance_ip)
+        # delete_host_by_hostname(instance_ip)
+        delete_host(instance_id)
 
     def list_all_alarms(self):
         alarm_list = self.easy_boto3.cloudwatch("list_all")

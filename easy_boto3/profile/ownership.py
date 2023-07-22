@@ -93,7 +93,8 @@ def delete_ownership_data(instance_id: str,
 
 @session_auth
 def change_ownership_state(instance_id: str,
-                           new_state: str = 'stopped') -> None:
+                           new_state: str = 'stopped',
+                           session=None) -> None:
     # read in profile data
     data = read_json_file()
 
