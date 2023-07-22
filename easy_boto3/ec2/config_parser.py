@@ -1,6 +1,6 @@
 import yaml
 from easy_boto3.ec2.script import read_startup_script, inject_aws_creds, add_ssh_forwarding, add_github_host
-from easy_boto3.profile.profile import check_credentials
+from easy_boto3.profile.validation import check_credentials
 
 
 def parse(base_config):

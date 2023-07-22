@@ -1,5 +1,5 @@
 import sys
-from easy_boto3.profile import profile
+from easy_boto3.profile import validation, adjuster
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
 from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname
 from easy_boto3.ec2.create import create_instance
@@ -32,12 +32,12 @@ class EasyBoto3:
         self.delete_alarm = delete_alarm
 
     def profile(self, sub_operation, **kwargs):
-        if sub_operation == "set":
-            return profile.set(**kwargs)
-        if sub_operation == "check":
-            return profile.check(**kwargs)
+        if sub_operation == "add":
+            return adjuster.add(**kwargs)
+        if sub_operation == "delete":
+            return adjuster.delete(**kwargs)
         if sub_operation == "validate":
-            return profile.validate(**kwargs)
+            return validation.validate(**kwargs)
 
     def ec2(self, sub_operation, **kwargs):
         if sub_operation == "create":
@@ -95,7 +95,13 @@ class Application:
                 self.stop_ec2_instance(instance_id)
             elif self.args[2] == "terminate":
                 instance_id = self.args[3]
+                
+                # terminate instance
                 self.terminate_ec2_instance(instance_id)
+                
+                # delete profile entry 
+                self.easy_boto3.profile("delete", instance_id=instance_id)
+                
             elif self.args[2] == "start":
                 instance_id = self.args[3]
                 self.start_ec2_instance(instance_id)
@@ -131,11 +137,14 @@ class Application:
         profile_name, ec2_instance_details, alarm_instance_details, ssh_instance_details = ec2_config_parser(config)
 
         # set aws profile name
-        self.easy_boto3.profile("set", profile_name=profile_name)
+        self.easy_boto3.profile("validate", profile_name=profile_name)
 
         # create ec2 instance
         launch_details = self.easy_boto3.ec2("create", **ec2_instance_details)
         print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
+
+        # record instance_id / profile pair in ~/.easy_boto3/instance_profile_pairs.yaml
+        self.easy_boto3.profile("add", instance_id=launch_details.id, profile_name=profile_name)
 
         # unpack ssh_details
         ssh_config_settings = ssh_instance_details['Config']
