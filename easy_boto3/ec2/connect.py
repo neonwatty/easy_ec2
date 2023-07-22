@@ -1,3 +1,4 @@
+from easy_boto3.profile.ownership import lookup_public_ip
 from easy_boto3.setup_session import setup
 session_auth = setup()
 import paramiko
@@ -12,9 +13,21 @@ def get_public_ip(instance_id, session=None):
     # create ec2 controller from session
     ec2_controller = session.client('ec2')
 
-    # get instance public ip
+    # collect response from aws based on instance_id
     response = ec2_controller.describe_instances(InstanceIds=[instance_id])
-    return response['Reservations'][0]['Instances'][0]['PublicIpAddress']
+
+    # cut out instance data
+    instance_data = response['Reservations'][0]['Instances'][0]
+
+    # if PublicIpAddress is present as key, return its value
+    if 'PublicIpAddress' in instance_data.keys():
+        return instance_data['PublicIpAddress']         
+    else:
+        # try loading public ip from instance_id_profile_pairs_path via instance_id
+        public_ip = lookup_public_ip(instance_id)
+        if public_ip is not None:
+            return public_ip
+    return None
 
 
 @session_auth

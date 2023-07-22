@@ -1,5 +1,5 @@
 import sys
-from easy_boto3.profile import validation, adjuster
+from easy_boto3.profile import ownership, validation, active
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
 from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname
 from easy_boto3.ec2.create import create_instance
@@ -33,11 +33,19 @@ class EasyBoto3:
 
     def profile(self, sub_operation, **kwargs):
         if sub_operation == "add":
-            return adjuster.add(**kwargs)
+            return ownership.add_ownership_data(**kwargs)
         if sub_operation == "delete":
-            return adjuster.delete(**kwargs)
+            return ownership.delete_ownership_data(**kwargs)
+        if sub_operation == "change_state":
+            return ownership.change_ownership_state(**kwargs)
         if sub_operation == "validate":
             return validation.validate(**kwargs)
+        if sub_operation == "list_all":
+            return validation.list_all_profiles(**kwargs)
+        if sub_operation == "set":
+            return active.set_active_profile(**kwargs)
+        if sub_operation == "list_active":
+            return active.list_active_profile(**kwargs)
 
     def ec2(self, sub_operation, **kwargs):
         if sub_operation == "create":
@@ -92,19 +100,31 @@ class Application:
                 self.create_ec2_instance(config)
             elif self.args[2] == "stop":
                 instance_id = self.args[3]
+
+                # stop instance
                 self.stop_ec2_instance(instance_id)
+
+                # adjust instance state in file
+                self.easy_boto3.profile("change_state", instance_id=instance_id, new_state="stopped")
+
             elif self.args[2] == "terminate":
                 instance_id = self.args[3]
-                
+
                 # terminate instance
                 self.terminate_ec2_instance(instance_id)
-                
-                # delete profile entry 
+
+                # delete profile entry
                 self.easy_boto3.profile("delete", instance_id=instance_id)
-                
+
             elif self.args[2] == "start":
                 instance_id = self.args[3]
+                
+                # start instance
                 self.start_ec2_instance(instance_id)
+                
+                # adjust instance state in file
+                self.easy_boto3.profile("change_state", instance_id=instance_id, new_state="running")
+
             elif self.args[2] == "check_cloud_init_logs":
                 instance_id = self.args[3]
                 self.check_cloud_init_logs(instance_id)
@@ -117,6 +137,10 @@ class Application:
                 self.list_alarm_instance(instance_id)
             else:
                 print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
+        elif self.args[1] == 'profile':
+            if self.args[2] == 'set':
+                profile_name = self.args[3]
+                self.easy_boto3.profile("set", profile_name=profile_name)
         else:
             print(f"Invalid operation / sub-operation '{self.args}'")
 
@@ -131,6 +155,14 @@ class Application:
                 self.list_all_alarms()
             else:
                 print(f"Invalid sub-operation '{self.args[2]}' for 'alarm'")
+        elif self.args[1] == 'profile':
+            if self.args[2] == 'list_active':
+                self.easy_boto3.profile("list_active")
+            elif self.args[2] == 'list_all':
+                self.easy_boto3.profile("list_all")
+            else:
+                print(f"Invalid sub-operation '{self.args[2]}' for 'profile'")
+
 
     def create_ec2_instance(self, config):
         # readin config file
@@ -144,7 +176,10 @@ class Application:
         print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
 
         # record instance_id / profile pair in ~/.easy_boto3/instance_profile_pairs.yaml
-        self.easy_boto3.profile("add", instance_id=launch_details.id, profile_name=profile_name)
+        self.easy_boto3.profile("add",
+                                instance_id=launch_details.id, 
+                                public_ip=launch_details.public_ip, 
+                                profile_name=profile_name)
 
         # unpack ssh_details
         ssh_config_settings = ssh_instance_details['Config']

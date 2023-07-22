@@ -5,12 +5,12 @@ session_auth = setup()
 @session_auth
 def create_cpu_alarm(instance_id=None,
                      ComparisonOperator='GreaterThanOrEqualToThreshold',
-                     EvaluationPeriods=1,
+                     EvaluationPeriods=10,
                      MetricName='CPUUtilization',
                      Namespace='AWS/EC2',
                      Period=60,
                      Statistic='Average',
-                     Threshold=70,
+                     Threshold=99.9,
                      session=None):
     # create ec2 controller from session
     ec2_client = session.client('ec2')
