@@ -13,6 +13,11 @@ def stop_instance(instance_id: str,
     if response['Reservations'][0]['Instances'][0]['State']['Name'] == 'running':
         # stop instance
         ec2_controller.stop_instances(InstanceIds=[instance_id])
-        print(f'instance {instance_id} stopped')
+
+        # Get the instance stopped waiter
+        stopped_waiter = ec2_controller.get_waiter('instance_stopped')
+        # Wait until the instance is stopped
+        stopped_waiter.wait(InstanceIds=[instance_id])
     else:
+        print('\n')
         print(f'instance {instance_id} already stopped')

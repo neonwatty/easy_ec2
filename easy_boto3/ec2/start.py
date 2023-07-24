@@ -14,10 +14,11 @@ def start_instance(instance_id: str,
     # start instance if it exists
     if len(response["Reservations"]) > 0:
         # Start instance
-        ec2_controller.start_instances(InstanceIds=[instance_id])
+        instances = ec2_controller.start_instances(InstanceIds=[instance_id])
 
-        message = f"Starting instance {instance_id}"
-        print(message)
+        # wait for the instance to be running
+        waiter = ec2_controller.get_waiter('instance_running')
+        waiter.wait(InstanceIds=[instance_id])
     else:
         message = f"Instance {instance_id} does not exist"
         print(message)

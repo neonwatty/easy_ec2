@@ -1,7 +1,8 @@
 import sys
+import time
 from easy_boto3.profile import ownership, validation, active
 from easy_boto3.ec2.config_parser import parse as ec2_config_parser
-from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname, delete_host
+from easy_boto3.ec2.ssh import add_host, delete_host_by_hostname, lookup_host_data_by_hostname, delete_host, change_host_name_by_host
 from easy_boto3.ec2.create import create_instance
 from easy_boto3.ec2.stop import stop_instance
 from easy_boto3.ec2.terminate import terminate_instance
@@ -38,6 +39,8 @@ class EasyBoto3:
             return ownership.delete_ownership_data(**kwargs)
         if sub_operation == "change_state":
             return ownership.change_ownership_state(**kwargs)
+        if sub_operation == "change_ip":
+            return ownership.change_ownership_ip(**kwargs)
         if sub_operation == "validate":
             return validation.validate(**kwargs)
         if sub_operation == "list_all":
@@ -101,14 +104,23 @@ class Application:
             elif self.args[2] == "stop":
                 instance_id = self.args[3]
 
+                # lookup public_ip associated with instance_id
+                instance_ip = get_public_ip(instance_id)
+
                 # stop instance
                 self.stop_ec2_instance(instance_id)
 
                 # adjust instance state in file
                 self.easy_boto3.profile("change_state", instance_id=instance_id, new_state="stopped")
 
+                # print updated instance_ip
+                print(f"Instance stopped - instance {instance_id} stopped with public_ip {instance_ip}")
+
             elif self.args[2] == "terminate":
                 instance_id = self.args[3]
+
+                # lookup public_ip associated with instance_id
+                instance_ip = get_public_ip(instance_id)
 
                 # terminate instance
                 self.terminate_ec2_instance(instance_id)
@@ -116,14 +128,30 @@ class Application:
                 # delete profile entry
                 self.easy_boto3.profile("delete", instance_id=instance_id)
 
+                # print updated instance_ip
+                print(f"Instance terminated - instance {instance_id} terminated with public_ip {instance_ip}")
+
             elif self.args[2] == "start":
                 instance_id = self.args[3]
 
                 # start instance
                 self.start_ec2_instance(instance_id)
 
+                # lookup public_ip associated with instance_id
+                instance_ip = get_public_ip(instance_id)
+
+                # print updated instance_ip
+                print(f"Instance started - instance {instance_id} started with public_ip {instance_ip}")
+
                 # adjust instance state in file
                 self.easy_boto3.profile("change_state", instance_id=instance_id, new_state="running")
+
+                # adjust public_ip in pair file
+                self.easy_boto3.profile("change_ip", instance_id=instance_id, public_ip=instance_ip)
+
+                # change host name in ssh config
+                change_host_name_by_host(host=instance_id, 
+                                         public_ip=instance_ip)
 
             elif self.args[2] == "check_cloud_init_logs":
                 instance_id = self.args[3]

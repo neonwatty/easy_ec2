@@ -20,8 +20,10 @@ def terminate_instance(instance_id: str,
         # Delete alarm if it exists
         delete_instance_alarm(instance_id)
 
-        message = f"Terminating instance {instance_id} along with any associated cpu alarms"
-        print(message)
+        # Get the instance stopped waiter
+        terminated_waiter = ec2_controller.get_waiter('instance_terminated')
+        # Wait until the instance is stopped
+        terminated_waiter.wait(InstanceIds=[instance_id])
     else:
         message = f"Instance {instance_id} does not exist"
         print(message)

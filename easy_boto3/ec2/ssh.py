@@ -68,6 +68,32 @@ def lookup_host_data_by_hostname(instance_ip,
 
 
 @session_auth
+def lookup_by_host_data_by_host(host,
+                                session=None):
+    # get ssh config
+    config = create_config_object()
+
+    # lookup host_data config
+    host_data = config.host(host)
+
+    return host_data
+
+
+@session_auth
+def change_host_name_by_host(host,
+                             public_ip,
+                             session=None):
+    # get ssh config
+    config = create_config_object()
+
+    # reset hostname   
+    config.set(host, Hostname=public_ip)
+
+    # save config
+    config.save()
+
+
+@session_auth
 def delete_host_by_hostname(instance_ip,
                             session=None):
     # get ssh config

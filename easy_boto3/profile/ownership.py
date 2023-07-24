@@ -57,6 +57,14 @@ def change_entry_state(data, instance_id, new_state='stopped'):
     return None
 
 
+def change_entry_public_ip(data, instance_id, new_public_ip):
+    for entry in data:
+        if entry["instance_id"] == instance_id:
+            entry["public_ip"] = new_public_ip
+            return data
+    return None
+
+
 @session_auth
 def add_ownership_data(instance_id: str,
                        public_ip: str,
@@ -107,6 +115,22 @@ def change_ownership_state(instance_id: str,
 
     return None
 
+
+@session_auth
+def change_ownership_ip(instance_id: str,
+                        public_ip: str,
+                        session=None) -> None:
+    # read in profile data
+    data = read_json_file()
+
+    # try to change entry state
+    new_data = change_entry_public_ip(data, instance_id, public_ip)
+
+    # save if new_data is not None
+    if new_data is not None:
+        save_json_file(new_data)
+
+    return None
 
 def list() -> list:
     # read in profile data
