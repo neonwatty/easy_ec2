@@ -9,7 +9,8 @@ logging.getLogger("paramiko").setLevel(logging.CRITICAL)
 
 
 @session_auth
-def get_public_ip(instance_id, session=None):
+def get_public_ip(instance_id,
+                  session=None):
     # create ec2 controller from session
     ec2_controller = session.client('ec2')
 

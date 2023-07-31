@@ -1,4 +1,4 @@
-from easy_boto3.ec2.ec2 import EC2 
+from easy_boto3.ec2.ec2 import EC2
 from easy_boto3.profile.profile import Profile
 from easy_boto3.cloudwatch.cloudwatch import Cloudwatch
 
@@ -7,20 +7,22 @@ class Compound(EC2, Profile, Cloudwatch):
     def create_ec2_instance(self, config):
         # readin config file
         profile_name, ec2_instance_details, alarm_instance_details, ssh_instance_details = \
-            self.ec2("parse_config", config=config)
+            self.ec2("parse_config",
+                     base_config=config)
 
         # set aws profile name
-        self.profile("validate", profile_name=profile_name)
+        self.profile("validate",
+                     profile_name=profile_name)
 
         # create ec2 instance
         launch_details = self.ec2("create", **ec2_instance_details)
         print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
 
         # record instance_id / profile pair in ~/.easy_boto3/instance_profile_pairs.yaml
-        self.easy_boto3.profile("add",
-                                instance_id=launch_details.id, 
-                                public_ip=launch_details.public_ip, 
-                                profile_name=profile_name)
+        self.profile("add",
+                     instance_id=launch_details.id, 
+                     public_ip=launch_details.public_ip, 
+                     profile_name=profile_name)
 
         # unpack ssh_details
         ssh_config_settings = ssh_instance_details['Config']
@@ -39,7 +41,9 @@ class Compound(EC2, Profile, Cloudwatch):
         ssh_config_settings['HostName'] = launch_details.public_ip
 
         # add host to ssh config
-        self.ssh('add', host, ssh_config_settings)
+        self.ssh('add',
+                 host=host,
+                 host_info=ssh_config_settings)
 
         # set alarm if present in config
         if alarm_instance_details is not None:
@@ -51,46 +55,66 @@ class Compound(EC2, Profile, Cloudwatch):
 
     def stop_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id
-        instance_ip = self.ec2('get_public_ip', instance_id)
+        instance_ip = self.ec2('get_public_ip',
+                               instance_id=instance_id)
 
         # stop instance
-        self.ec2('stop',instance_id)
+        self.ec2('stop',
+                 instance_id=instance_id)
 
         # adjust instance state in file
-        self.profile("change_state", instance_id=instance_id, new_state="stopped")
+        self.profile("change_state",
+                     instance_id=instance_id,
+                     new_state="stopped")
 
         # print updated instance_ip
         print(f"Instance stopped - instance {instance_id} stopped with public_ip {instance_ip}")
 
     def terminate_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id
-        # instance_ip = get_public_ip(instance_id)
-
+        instance_ip = self.ec2('get_public_ip',
+                               instance_id=instance_id)
+        
         # delete instance and alarm associated with instance_id
-        terminate_details = self.ec2("terminate", instance_id=instance_id)
+        terminate_details = self.ec2("terminate",
+                                     instance_id=instance_id)
 
         # delete entry in ~/.easy_boto3/ssh_config associated with HostName = instance_ip
-        # delete_host_by_hostname(instance_ip)
-        self.ssh('delete', instance_id)
+        self.ssh('delete',
+                 host=instance_id)
+
+        # delete profile pair entry
+        self.profile("delete", instance_id=instance_id)
+
+        # print updated instance_ip
+        print(f"Instance terminated - instance {instance_id} terminated with public_ip {instance_ip}")
 
     def start_ec2_instance(self, instance_id):
         # start instance
-        self.ec2('start', instance_id)
+        self.ec2('start',
+                 instance_id=instance_id)
 
         # lookup public_ip associated with instance_id
-        instance_ip = self.ec2('get_public_ip', instance_id)
+        instance_ip = self.ec2('get_public_ip',
+                               instance_id=instance_id)
 
         # print updated instance_ip
         print(f"Instance started - instance {instance_id} started with public_ip {instance_ip}")
 
         # adjust instance state in file
-        self.profile("change_state", instance_id=instance_id, new_state="running")
+        self.profile("change_state",
+                     instance_id=instance_id,
+                     new_state="running")
 
         # adjust public_ip in pair file
-        self.profile("change_ip", instance_id=instance_id, public_ip=instance_ip)
+        self.profile("change_ip",
+                     instance_id=instance_id,
+                     public_ip=instance_ip)
 
         # change host name in ssh config
-        self.ssh('change_hostname', instance_id, instance_ip)
+        self.ssh('change_hostname',
+                 host=instance_id,
+                 public_ip=instance_ip)
 
     def list_ec2_instances(self, sub_operation):
         instance_list = []
@@ -107,35 +131,39 @@ class Compound(EC2, Profile, Cloudwatch):
 
     def check_cloud_init_logs(self, instance_id):
         # lookup public_ip associated with instance_id
-        instance_ip = self.ec2('get_public_ip', instance_id)
+        instance_ip = self.ec2('get_public_ip',
+                               instance_id=instance_id)
 
         # lookup host_data by instance_ip
-        host_data = self.ssh('lookup_by_hostname', instance_ip)
+        host_data = self.ssh('lookup_by_hostname',
+                             instance_id=instance_ip)
 
         # read logs if host_data is not none
         if host_data is not None:
             ssh_username = host_data['user']
             ssh_path_keypath = host_data['identityfile']
             self.ec2("check_cloud_init_logs",
-                    instance_ip=instance_ip,
-                    ssh_username=ssh_username,
-                    ssh_path_keypath=ssh_path_keypath)
+                     instance_ip=instance_ip,
+                     ssh_username=ssh_username,
+                     ssh_path_keypath=ssh_path_keypath)
 
     def check_syslog(self, instance_id):
         # lookup public_ip associated with instance_id
-        instance_ip = self.ec2('get_public_ip', instance_id)
+        instance_ip = self.ec2('get_public_ip',
+                               instance_id=instance_id)
 
         # use public_ip to lookup ssh_config_settings
-        host_data = self.ssh('lookup_by_hostname', instance_ip)
+        host_data = self.ssh('lookup_by_hostname',
+                             instance_ip=instance_ip)
 
         # read logs if host_data is not none
         if host_data is not None:
             ssh_username = host_data['user']
             ssh_path_keypath = host_data['identityfile']
             self.ec2("check_syslog",
-                    instance_ip=instance_ip,
-                    ssh_username=ssh_username,
-                    ssh_path_keypath=ssh_path_keypath)
+                     instance_ip=instance_ip,
+                     ssh_username=ssh_username,
+                     ssh_path_keypath=ssh_path_keypath)
 
     def list_alarm_instance(self, instance_id):
         alarm_list = self.cloudwatch("list_instance", instance_id=instance_id)
