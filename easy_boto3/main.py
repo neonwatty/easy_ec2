@@ -85,7 +85,7 @@ class EasyBoto3:
             print("Invalid sub-operation for 'cloudwatch'")
 
 
-class Application:
+class Router:
     def __init__(self):
         self.args = dict(enumerate(sys.argv))
         self.easy_boto3 = EasyBoto3()
@@ -312,7 +312,7 @@ class Application:
 
 
 def main():
-    app = Application()
+    app = Router()
     app.run()
 
 

@@ -27,9 +27,13 @@ botocore = "^1.31.1"
 yaspin = "^2.3.0"
 sshconf = "^0.2.5"
 
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.5"
+flake8 = "^4.0.1"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.23.1"
+mypy = "^1.4.1"
 
 [build-system]
 requires = ["poetry-core"]
