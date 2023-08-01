@@ -6,7 +6,6 @@ authors = ["Jeremy Watt <jermwatt@gmail.com>"]
 readme = "README.md"
 homepage = "https://github.com/jermwatt/easy_boto3"
 packages = [{include = "easy_boto3"}]
-include = ["easy_boto3/.easy_boto3_internal.yaml"]
 
 
 [tool.poetry.scripts]

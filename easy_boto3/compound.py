@@ -16,12 +16,11 @@ class Compound(EC2, Profile, Cloudwatch):
 
         # create ec2 instance
         launch_details = self.ec2("create", **ec2_instance_details)
-        print(f"Instance created - instance_id = {launch_details.id} and public_ip = {launch_details.public_ip}")
 
         # record instance_id / profile pair in ~/.easy_boto3/instance_profile_pairs.yaml
         self.profile("add",
-                     instance_id=launch_details.id, 
-                     public_ip=launch_details.public_ip, 
+                     instance_id=launch_details.id,
+                     public_ip=launch_details.public_ip,
                      profile_name=profile_name)
 
         # unpack ssh_details
@@ -53,6 +52,10 @@ class Compound(EC2, Profile, Cloudwatch):
         else:
             print("No alarm created")
 
+        # return launch details report
+        report = {'instance_id': launch_details.id, 'instance_state': 'running', 'public_ip' : launch_details.public_ip}
+        return report
+
     def stop_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id
         instance_ip = self.ec2('get_public_ip',
@@ -67,14 +70,15 @@ class Compound(EC2, Profile, Cloudwatch):
                      instance_id=instance_id,
                      new_state="stopped")
 
-        # print updated instance_ip
-        print(f"Instance stopped - instance {instance_id} stopped with public_ip {instance_ip}")
+        # return report updated instance_ip
+        report = {'instance_id': instance_id, 'instance_state': 'stopped', 'public_ip' : instance_ip}
+        return report
 
     def terminate_ec2_instance(self, instance_id):
         # lookup public_ip associated with instance_id
         instance_ip = self.ec2('get_public_ip',
                                instance_id=instance_id)
-        
+
         # delete instance and alarm associated with instance_id
         terminate_details = self.ec2("terminate",
                                      instance_id=instance_id)
@@ -87,7 +91,8 @@ class Compound(EC2, Profile, Cloudwatch):
         self.profile("delete", instance_id=instance_id)
 
         # print updated instance_ip
-        print(f"Instance terminated - instance {instance_id} terminated with public_ip {instance_ip}")
+        report = {'instance_id': instance_id, 'instance_state': 'terinated', 'public_ip' : instance_ip}
+        return report
 
     def start_ec2_instance(self, instance_id):
         # start instance
@@ -97,9 +102,6 @@ class Compound(EC2, Profile, Cloudwatch):
         # lookup public_ip associated with instance_id
         instance_ip = self.ec2('get_public_ip',
                                instance_id=instance_id)
-
-        # print updated instance_ip
-        print(f"Instance started - instance {instance_id} started with public_ip {instance_ip}")
 
         # adjust instance state in file
         self.profile("change_state",
@@ -116,14 +118,21 @@ class Compound(EC2, Profile, Cloudwatch):
                  host=instance_id,
                  public_ip=instance_ip)
 
+        # updated instance_ip
+        report = {'instance_id': instance_id, 'instance_state': 'running', 'public_ip' : instance_ip}
+        return report
+
     def list_ec2_instances(self, sub_operation):
         instance_list = []
         if sub_operation == "list_all":
             instance_list = self.ec2(sub_operation)
+            return instance_list
         elif sub_operation == "list_stopped":
             instance_list = self.ec2(sub_operation)
+            return instance_list
         elif sub_operation == "list_running":
             instance_list = self.ec2(sub_operation)
+            return instance_list
         else:
             print("Invalid sub-operation for 'ec2'")
         for item in instance_list:
