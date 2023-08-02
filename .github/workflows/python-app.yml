@@ -27,7 +27,7 @@ jobs:
         uses: mobiledevops/secret-to-file-action@v1
         with:
           base64-encoded-secret: ${{ secrets.PERSONAL_TESTING }}
-          filename: "personal_testing"
+          filename: "Jeremy_testing.pem"
           is-executable: false
           working-directory: "./test_configs"
 
