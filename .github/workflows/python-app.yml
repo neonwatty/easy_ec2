@@ -31,12 +31,15 @@ jobs:
           is-executable: false
           working-directory: "./test_configs"
 
-      - name: configure AWS Credentials
+      - name: update
         run: sudo apt-get update
+      - name: install awscli
         run: sudo apt-get install -y awscli
-        run: sudo aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        run: sudo aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: aws configure set default.region us-west-2
+      - name: aws creds
+        run: sudo aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} &&
+             sudo aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} &&
+             aws configure set default.region us-west-2
+      - name: look at 
         run: cat ~/.aws/credentials
       
 
