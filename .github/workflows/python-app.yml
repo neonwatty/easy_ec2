@@ -17,11 +17,11 @@ jobs:
       - name: test config storage
         uses: mobiledevops/secret-to-file-action@v1
         with:
-          base64-encoded-secret: ${{ secrets.SECRET_DATA1 }}
-          filename: "hello-world.txt"
-          is-executable: true
-          working-directory: "./a/b/c"
-      - run: cat ./a/b/c/hello-world.txt
+          base64-encoded-secret: ${{ secrets.SMALL_TEST_GITHUB }}
+          filename: "small_test_github.yaml"
+          is-executable: false
+          working-directory: "./test_configs"
+      - run: cat ./test_configs/small_test_github.yaml
 
 
   
