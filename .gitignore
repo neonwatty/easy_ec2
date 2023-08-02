@@ -6,8 +6,6 @@ __pycache__/
 .DS_Store
 *.yaml
 *.yml  
-startup_scripts/
-*.sh
 .ipynb_checkpoints
 .pyc
 .ipynb
