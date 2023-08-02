@@ -1,4 +1,5 @@
 [![Upload Python Package](https://github.com/jermwatt/easy_boto3/actions/workflows/python-publish.yml/badge.svg)](https://github.com/jermwatt/easy_boto3/actions/workflows/python-publish.yml)
+[![Python application](https://github.com/jermwatt/easy_boto3/actions/workflows/python-app.yml/badge.svg)](https://github.com/jermwatt/easy_boto3/actions/workflows/python-app.yml)
 
 # `boto3` made easy 
 
