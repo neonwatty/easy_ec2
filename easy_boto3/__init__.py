@@ -4,16 +4,6 @@ from pathlib import Path
 # path to user home directory
 user_path = os.path.expanduser('~')
 
-# if /user_path/.ssh does not exist, create it
-if not Path(user_path + '/.ssh').exists():
-    # create directory
-    os.mkdir(user_path + '/.ssh')
-    
-# if /user_path/.ssh/config does not exist, create it
-if not Path(user_path + '/.ssh/config').exists():
-    # create file
-    Path(user_path + '/.ssh/config').touch()
-
 # path to aws config directory
 aws_config_directory = user_path + '/.aws'
 aws_config_path = aws_config_directory + '/config'
@@ -26,6 +16,23 @@ easy_boto3_directory = user_path + '/.easy_boto3'
 if not Path(easy_boto3_directory).exists():
     # create directory
     os.mkdir(easy_boto3_directory)
+
+    # create ssh subdirectory
+    os.mkdir(easy_boto3_directory + '/ssh')
+
+# if /user_path/.ssh does not exist, create it
+if not Path(user_path + '/.ssh').exists():
+    # create directory
+    os.mkdir(user_path + '/.ssh')
+
+# if /user_path/.ssh/config does not exist, create it
+if not Path(user_path + '/.ssh/config').exists():
+    # create file
+    Path(user_path + '/.ssh/config').touch()
+
+    # write Include easy_boto3_directory + '/ssh/config' in ~/.ssh/config
+    with open(user_path + '/.ssh/config', 'w') as file:
+        file.write(f'Include {easy_boto3_directory}/ssh/config')
 
 # paths to internal config files based off easy_boto3_directory
 instance_id_profile_pairs_path = easy_boto3_directory + '/instance_id_profile_pairs.json'
