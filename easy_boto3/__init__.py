@@ -4,12 +4,22 @@ from pathlib import Path
 # path to user home directory
 user_path = os.path.expanduser('~')
 
+# if /user_path/.ssh does not exist, create it
+if not Path(user_path + '/.ssh').exists():
+    # create directory
+    os.mkdir(user_path + '/.ssh')
+    
+# if /user_path/.ssh/config does not exist, create it
+if not Path(user_path + '/.ssh/config').exists():
+    # create file
+    Path(user_path + '/.ssh/config').touch()
+
 # path to aws config directory
 aws_config_directory = user_path + '/.aws'
 aws_config_path = aws_config_directory + '/config'
 aws_creds_path = aws_config_directory + '/credentials'
 
-# path to .easy_boto3 directory 
+# path to .easy_boto3 directory
 easy_boto3_directory = user_path + '/.easy_boto3'
 
 # if easy_boto3_directory does not exist, create it
