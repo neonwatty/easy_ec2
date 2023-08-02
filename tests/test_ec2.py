@@ -14,7 +14,7 @@ from easy_boto3.main import main  # noqa: E402
 # conditional for github actions
 bigquery_client = None
 if "GITHUB_ACTIONS" in os.environ:
-    test_config_path = current_dir + './test_configs/small_test_github.yaml'
+    test_config_path = './test_configs/small_test_github.yaml'
     main_path = '/home/runner/work/easy_boto3/easy_boto3/easy_boto3/main.py'
 
 
