@@ -1,10 +1,10 @@
-from easy_boto3.profile.ownership import lookup_public_ip
-from easy_boto3.setup_session import setup
-session_auth = setup()
 import paramiko
 import time
 import os
 import logging
+from easy_boto3.profile.ownership import lookup_public_ip
+from easy_boto3.setup_session import setup
+session_auth = setup()
 logging.getLogger("paramiko").setLevel(logging.CRITICAL)
 
 
@@ -22,7 +22,7 @@ def get_public_ip(instance_id,
 
     # if PublicIpAddress is present as key, return its value
     if 'PublicIpAddress' in instance_data.keys():
-        return instance_data['PublicIpAddress']         
+        return instance_data['PublicIpAddress']
     else:
         # try loading public ip from instance_id_profile_pairs_path via instance_id
         public_ip = lookup_public_ip(instance_id)
@@ -37,7 +37,7 @@ def add_instance_to_known_hosts(instance_ip,
                                 key_name):
     # connect to instance
     username = 'ubuntu'
-    key_path = '/Users/wattjer/.ssh/shiftsmart_transcript_west_2.pem' 
+    key_path = '/Users/wattjer/.ssh/shiftsmart_transcript_west_2.pem'
     ec2_public_ip = instance_ip
 
     # Create an SSH client
@@ -59,17 +59,17 @@ def add_instance_to_known_hosts(instance_ip,
 
             ssh_transport.start_client()
             key = ssh_transport.get_remote_server_key()
-            ssh_transport.close()   
+            ssh_transport.close()
 
             name = key.get_name()
             if name not in all_names:
                 all_names.add(name)
                 all_keys.append(key)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
-
-    # Add the remote server's public keys to the local known_hosts file    
+    # Add the remote server's public keys to the local known_hosts file
     home_dir = os.path.expanduser("~")
     known_hosts_path = os.path.join(home_dir, '.ssh', 'known_hosts')
 
@@ -104,10 +104,11 @@ def test_connection(instance_ip):
             add_instance_to_known_hosts(instance_ip)
             print('addition to known hosts successful')
             break
-        except:
+        except Exception as e:
+            print(e)
             time.sleep(10)
             print('trying again')
-            
+
         max_count -= 1
         if max_count == 0:
             print('max count reached')

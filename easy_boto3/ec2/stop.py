@@ -3,7 +3,7 @@ session_auth = setup()
 
 
 @session_auth
-def stop_instance(instance_id: str, 
+def stop_instance(instance_id: str,
                   session=None) -> str:
     # create ec2 controller from session
     ec2_controller = session.client('ec2')

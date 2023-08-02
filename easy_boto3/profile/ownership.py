@@ -132,6 +132,7 @@ def change_ownership_ip(instance_id: str,
 
     return None
 
+
 def list() -> list:
     # read in profile data
     data = read_json_file()

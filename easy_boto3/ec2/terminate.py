@@ -1,6 +1,6 @@
+from easy_boto3.cloudwatch.delete import delete_instance_alarm
 from easy_boto3.setup_session import setup
 session_auth = setup()
-from easy_boto3.cloudwatch.delete import delete_instance_alarm
 
 
 @session_auth

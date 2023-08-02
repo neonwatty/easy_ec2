@@ -11,7 +11,7 @@ class LogExceptions:
         def wrapper(*args, **kwargs):
             func_name = func.__name__
             try:
-                result = func(*args, **kwargs)           
+                result = func(*args, **kwargs)
             except Exception as e:
                 # with open(self.file_path, 'a') as file:
                 #     file.write(f"FAILURE: {func_name} failed: {e}\n")

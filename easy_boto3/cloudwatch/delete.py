@@ -1,6 +1,6 @@
 from easy_boto3.setup_session import setup
-session_auth = setup()
 from easy_boto3.cloudwatch.list import list_instance_alarms
+session_auth = setup()
 
 
 @session_auth

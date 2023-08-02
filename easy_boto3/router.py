@@ -42,7 +42,7 @@ class Router(Compound):
             else:
                 print(f"Invalid sub-operation '{self.args[2]}' for 'ec2'")
         # process alarm requests
-        elif self.args[1] == "alarm": 
+        elif self.args[1] == "alarm":
             if self.args[2] == "list_all":
                 self.list_all_alarms()
             elif self.args[2] == "list_instance":

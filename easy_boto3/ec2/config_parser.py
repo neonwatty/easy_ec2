@@ -27,9 +27,9 @@ def parse(base_config):
         set_active_profile(profile_name)
 
     # re-convert ssh_instance_details IdentityFile to yes/no
-    if ssh_instance_details['Config']['ForwardAgent'] == True:
+    if ssh_instance_details['Config']['ForwardAgent'] is True:
         ssh_instance_details['Config']['ForwardAgent'] = 'yes'
-    elif ssh_instance_details['Config']['ForwardAgent'] == False:
+    elif ssh_instance_details['Config']['ForwardAgent'] is False:
         ssh_instance_details['Config']['ForwardAgent'] = 'no'
 
     # setup alarm_details if present in base_config

@@ -41,4 +41,7 @@ def create_cpu_alarm(instance_id=None,
             Dimensions=Dimensions
         )
 
+    if result['ResponseMetadata']['HTTPStatusCode'] == 200:
+        pass
+
     return {'AlarmName': AlarmName}

@@ -1,6 +1,6 @@
 from easy_boto3.setup_session import setup
+from easy_boto3.ec2.connect import get_public_ip
 session_auth = setup()
-from easy_boto3.ec2.connect import get_public_ip, test_connection
 
 
 @session_auth

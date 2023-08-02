@@ -25,7 +25,7 @@ class Compound(EC2, Profile, Cloudwatch):
 
         # unpack ssh_details
         ssh_config_settings = ssh_instance_details['Config']
-        ssh_options = ssh_instance_details['Options']
+        # ssh_options = ssh_instance_details['Options']
 
         # set host if present in config
         host = None
@@ -80,8 +80,8 @@ class Compound(EC2, Profile, Cloudwatch):
                                instance_id=instance_id)
 
         # delete instance and alarm associated with instance_id
-        terminate_details = self.ec2("terminate",
-                                     instance_id=instance_id)
+        # terminate_details = self.ec2("terminate",
+        #  instance_id=instance_id)
 
         # delete entry in ~/.easy_boto3/ssh_config associated with HostName = instance_ip
         self.ssh('delete',

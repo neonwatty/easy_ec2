@@ -15,6 +15,8 @@ def start_instance(instance_id: str,
     if len(response["Reservations"]) > 0:
         # Start instance
         instances = ec2_controller.start_instances(InstanceIds=[instance_id])
+        if instances is not None:
+            pass
 
         # wait for the instance to be running
         waiter = ec2_controller.get_waiter('instance_running')
