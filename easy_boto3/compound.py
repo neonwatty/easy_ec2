@@ -80,8 +80,9 @@ class Compound(EC2, Profile, Cloudwatch):
                                instance_id=instance_id)
 
         # delete instance and alarm associated with instance_id
-        # terminate_details = self.ec2("terminate",
-        #  instance_id=instance_id)
+        terminate_details = self.ec2("terminate", instance_id=instance_id)
+        if terminate_details is not None:
+            pass
 
         # delete entry in ~/.easy_boto3/ssh_config associated with HostName = instance_ip
         self.ssh('delete',

@@ -36,6 +36,7 @@ def test_ec2_list_stopped():
     else:
         assert False
 
+
 def ec2_stop(instance_id):
     # call main for ec2 stop test
     result = main('easy_boto3', 'ec2', 'stop', instance_id)
@@ -70,7 +71,7 @@ def test_ec2_create():
         ec2_stop(instance_id)
 
         # wait a few seconds to ensure instance is stop-able
-        time.sleep(5)
+        time.sleep(15)
 
         # stop instance
         ec2_terminate(instance_id)
