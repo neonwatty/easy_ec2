@@ -1,4 +1,3 @@
-import os
 import paramiko
 import logging
 from easy_boto3.setup_session import setup

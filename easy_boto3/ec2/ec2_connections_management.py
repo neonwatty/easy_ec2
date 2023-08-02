@@ -1,5 +1,5 @@
-import os, time
-from easy_boto3 import session_auth
+import os
+import time
 import paramiko
 import logging
 logging.getLogger("paramiko").setLevel(logging.CRITICAL)
@@ -36,10 +36,11 @@ def add_instance_to_known_hosts(instance_ip):
             if name not in all_names:
                 all_names.add(name)
                 all_keys.append(key)
-        except:
+        except Exception as e:
+            print(e)
             pass
 
-    # Add the remote server's public keys to the local known_hosts file    
+    # Add the remote server's public keys to the local known_hosts file
     home_dir = os.path.expanduser("~")
     known_hosts_path = os.path.join(home_dir, '.ssh', 'known_hosts')
 
@@ -66,7 +67,7 @@ def test_connect(instance_ip):
     ssh_client.connect(instance_ip, username=username, key_filename=key_path)
 
 
-# try test_connect every 10 seconds 
+# try test_connect every 10 seconds
 def test_connection(instance_ip):
     max_count = 10
     while True:
@@ -74,7 +75,8 @@ def test_connection(instance_ip):
             add_instance_to_known_hosts(instance_ip)
             print('addition to known hosts successful')
             break
-        except:
+        except Exception as e:
+            print(e)
             time.sleep(10)
             print('trying again')
 

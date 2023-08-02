@@ -9,8 +9,32 @@ aws_config_directory = user_path + '/.aws'
 aws_config_path = aws_config_directory + '/config'
 aws_creds_path = aws_config_directory + '/credentials'
 
-# path to .easy_boto3 directory and internal config file
+# path to .easy_boto3 directory
 easy_boto3_directory = user_path + '/.easy_boto3'
+
+# if easy_boto3_directory does not exist, create it
+if not Path(easy_boto3_directory).exists():
+    # create directory
+    os.mkdir(easy_boto3_directory)
+
+    # create ssh subdirectory
+    os.mkdir(easy_boto3_directory + '/ssh')
+
+# if /user_path/.ssh does not exist, create it
+if not Path(user_path + '/.ssh').exists():
+    # create directory
+    os.mkdir(user_path + '/.ssh')
+
+# if /user_path/.ssh/config does not exist, create it
+if not Path(user_path + '/.ssh/config').exists():
+    # create file
+    Path(user_path + '/.ssh/config').touch()
+
+    # write Include easy_boto3_directory + '/ssh/config' in ~/.ssh/config
+    with open(user_path + '/.ssh/config', 'w') as file:
+        file.write(f'Include {easy_boto3_directory}/ssh/config')
+
+# paths to internal config files based off easy_boto3_directory
 instance_id_profile_pairs_path = easy_boto3_directory + '/instance_id_profile_pairs.json'
 active_profile_path = easy_boto3_directory + '/active_profile.json'
 

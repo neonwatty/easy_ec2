@@ -6,7 +6,9 @@ def get_aws_config_data(aws_config_path: str,
                         selected_profile_name: str) -> dict:
     # read in aws config
     aws_config = configparser.ConfigParser()
-    aws_config.read(aws_config_path);
+
+    # read in config file but quiet output
+    f = aws_config.read(aws_config_path)  # noqa: F841
 
     # select data associated with selected profile
     aws_profile_region = aws_config[selected_profile_name]['region']
@@ -20,7 +22,7 @@ def get_aws_creds_data(aws_creds_path: str,
                        selected_profile_name: str) -> dict:
     # read in credentials config
     aws_creds = configparser.ConfigParser()
-    aws_creds.read(aws_creds_path);
+    f = aws_creds.read(aws_creds_path)  # noqa: F841
 
     # select data associated with selected profile
     aws_access_key_id = aws_creds[selected_profile_name]['aws_access_key_id']

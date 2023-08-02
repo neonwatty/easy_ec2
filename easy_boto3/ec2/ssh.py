@@ -54,7 +54,7 @@ def delete_host(host,
 def lookup_host_data_by_hostname(instance_ip,
                                  session=None):
 
-    # get ssh config 
+    # get ssh config
     config = create_config_object()
 
     # loop over hosts, find host with matching host_name = instance_ip
@@ -86,7 +86,7 @@ def change_host_name_by_host(host,
     # get ssh config
     config = create_config_object()
 
-    # reset hostname   
+    # reset hostname
     config.set(host, Hostname=public_ip)
 
     # save config

@@ -34,6 +34,14 @@ def set_active_profile(profile_name: str = 'default') -> None:
     print('')
 
 
+def check_active_profile() -> str:
+    # read in profile data
+    data = read_json_file()
+
+    # return active profile
+    return data['active_profile']
+
+
 def list_active_profile() -> list:
     # read in profile data
     data = read_json_file()

@@ -1,6 +1,7 @@
 import yaml
 from easy_boto3.ec2.script import read_startup_script, inject_aws_creds, add_ssh_forwarding, add_github_host
 from easy_boto3.profile.validation import check_credentials
+from easy_boto3.profile.active import set_active_profile, check_active_profile
 
 
 def parse(base_config):
@@ -20,10 +21,15 @@ def parse(base_config):
     alarm_details = None
     alarm_instance_details = None
 
+    # check if profile_name is current active_profile
+    if check_active_profile() != profile_name:
+        # set active profile
+        set_active_profile(profile_name)
+
     # re-convert ssh_instance_details IdentityFile to yes/no
-    if ssh_instance_details['Config']['ForwardAgent'] == True:
+    if ssh_instance_details['Config']['ForwardAgent'] is True:
         ssh_instance_details['Config']['ForwardAgent'] = 'yes'
-    elif ssh_instance_details['Config']['ForwardAgent'] == False:
+    elif ssh_instance_details['Config']['ForwardAgent'] is False:
         ssh_instance_details['Config']['ForwardAgent'] = 'no'
 
     # setup alarm_details if present in base_config
