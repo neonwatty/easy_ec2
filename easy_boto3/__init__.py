@@ -9,8 +9,15 @@ aws_config_directory = user_path + '/.aws'
 aws_config_path = aws_config_directory + '/config'
 aws_creds_path = aws_config_directory + '/credentials'
 
-# path to .easy_boto3 directory and internal config file
+# path to .easy_boto3 directory 
 easy_boto3_directory = user_path + '/.easy_boto3'
+
+# if easy_boto3_directory does not exist, create it
+if not Path(easy_boto3_directory).exists():
+    # create directory
+    os.mkdir(easy_boto3_directory)
+
+# paths to internal config files based off easy_boto3_directory
 instance_id_profile_pairs_path = easy_boto3_directory + '/instance_id_profile_pairs.json'
 active_profile_path = easy_boto3_directory + '/active_profile.json'
 
