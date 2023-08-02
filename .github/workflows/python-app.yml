@@ -41,11 +41,11 @@ jobs:
              aws configure set default.region us-west-2 &&
              aws configure set output json
              
-      - name: look at creds
-        run: sudo cat /root/.aws/credentials
+      # - name: look at creds
+      #   run: sudo cat /home/runner/.aws/credentials
 
       - name: look at config
-        run: sudo cat /root/.aws/config
+        run: sudo cat /home/runner/.aws/config
         
       
       # - name: Set up Python 3.10
