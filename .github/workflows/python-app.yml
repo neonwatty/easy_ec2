@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: test config storage
+      - name: ec2 creation config
         uses: mobiledevops/secret-to-file-action@v1
         with:
           base64-encoded-secret: ${{ secrets.SMALL_TEST_GITHUB }}
@@ -22,6 +22,15 @@ jobs:
           is-executable: false
           working-directory: "./test_configs"
       - run: cat ./test_configs/small_test_github.yaml
+
+      - name: aws creation
+        uses: mobiledevops/secret-to-file-action@v1
+        with:
+          base64-encoded-secret: ${{ secrets.PERSONAL_TESTING }}
+          filename: "personal_testing"
+          is-executable: false
+          working-directory: "./test_configs"
+      - run: cat ./test_configs/personal_testing
 
 
   
