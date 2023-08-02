@@ -21,7 +21,7 @@ jobs:
           filename: "small_test_github.yaml"
           is-executable: false
           working-directory: "./test_configs"
-      - run: cat ./test_configs/small_test_github.yaml
+      # - run: cat ./test_configs/small_test_github.yaml
 
       - name: aws creation
         uses: mobiledevops/secret-to-file-action@v1
@@ -30,7 +30,7 @@ jobs:
           filename: "personal_testing"
           is-executable: false
           working-directory: "./test_configs"
-      - run: cat ./test_configs/personal_testing
+      # - run: cat ./test_configs/personal_testing
 
 
   
