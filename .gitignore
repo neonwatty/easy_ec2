@@ -13,6 +13,7 @@ __pycache__/
 poetry.lock
 wip_demos/
 *.ipynb
+*.base64
 
 # C extensions
 *.so

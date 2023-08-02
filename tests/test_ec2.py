@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 import time
+import os
 current_dir = Path(__file__).parent.__str__()
 parent_dir = Path(__file__).parent.parent.__str__()
 sys.path.append(parent_dir)
@@ -8,6 +9,13 @@ test_config_path = current_dir + '/test_configs/small_test.yaml'
 main_path = parent_dir + '/easy_boto3/main.py'
 
 from easy_boto3.main import main  # noqa: E402
+
+
+# conditional for github actions
+bigquery_client = None
+if "GITHUB_ACTIONS" in os.environ:
+    test_config_path = current_dir + './test_configs/small_test_github.yaml'
+    main_path = '/home/runner/work/easy_boto3/easy_boto3/easy_boto3/main.py'
 
 
 def test_ec2_list_all():
