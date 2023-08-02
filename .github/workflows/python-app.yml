@@ -2,44 +2,55 @@ name: Python application
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "adding_tests" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "adding_tests" ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v3
-    - name: install aws cli
-      run: | 
-        apt-get install -y awscli
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install pip dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 
-        python -m pip install poetry==1.4.1
-    - name: Configure poetry
-      run: |
-        python -m poetry config virtualenvs.in-project true
-    - name: Install poetry dependencies
-      run: |
-        python -m poetry install
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 quick_batch --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 quick_batch --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        python -m poetry run pytest tests/test_quick_batch.py -s
+      - uses: actions/checkout@v3
+      - name: test config storage
+        uses: mobiledevops/secret-to-file-action@v1
+        with:
+          base64-encoded-secret: ${{ secrets.SECRET_DATA1 }}
+          filename: "hello-world.txt"
+          is-executable: true
+          working-directory: "./a/b/c"
+      - run: cat ./a/b/c/hello-world.txt
+
+
+  
+    # steps:
+    # - uses: actions/checkout@v3
+    # - name: install aws cli
+    #   run: | 
+    #     apt-get install -y awscli
+    # - name: Set up Python 3.10
+    #   uses: actions/setup-python@v3
+    #   with:
+    #     python-version: "3.10"
+    # - name: Install pip dependencies
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     python -m pip install flake8 
+    #     python -m pip install poetry==1.4.1
+    # - name: Configure poetry
+    #   run: |
+    #     python -m poetry config virtualenvs.in-project true
+    # - name: Install poetry dependencies
+    #   run: |
+    #     python -m poetry install
+    # - name: Lint with flake8
+    #   run: |
+    #     # stop the build if there are Python syntax errors or undefined names
+    #     flake8 quick_batch --count --select=E9,F63,F7,F82 --show-source --statistics
+    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+    #     flake8 quick_batch --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    # - name: Test with pytest
+    #   run: |
+    #     python -m poetry run pytest tests/test_quick_batch.py -s
