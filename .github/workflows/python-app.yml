@@ -18,7 +18,7 @@ jobs:
       - name: ec2 creation config
         uses: mobiledevops/secret-to-file-action@v1
         with:
-          base64-encoded-secret: ${{ secrets.SMALL_TEST_GITHUB }}
+          base64-encoded-secret: ${{ secrets.NEW_GITHUB_TEST }}
           filename: "small_test_github.yaml"
           is-executable: false
           working-directory: "./test_configs"
