@@ -1,15 +1,15 @@
-[![Upload Python Package](https://github.com/jermwatt/easy_boto3/actions/workflows/python-publish.yml/badge.svg)](https://github.com/jermwatt/easy_boto3/actions/workflows/python-publish.yml)
-[![Python application](https://github.com/jermwatt/easy_boto3/actions/workflows/python-app.yml/badge.svg)](https://github.com/jermwatt/easy_boto3/actions/workflows/python-app.yml)
+[![Upload Python Package](https://github.com/jermwatt/easy_ec2/actions/workflows/python-publish.yml/badge.svg)](https://github.com/jermwatt/easy_ec2/actions/workflows/python-publish.yml)
+[![Python application](https://github.com/jermwatt/easy_ec2/actions/workflows/python-app.yml/badge.svg)](https://github.com/jermwatt/easy_ec2/actions/workflows/python-app.yml)
 
-# `boto3` made easy 
+# easy `ec2` setup, remote usage, and teardown with vscode
 
-`easy_boto3` simplifies `boto3` usage by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS resources using `boto3` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file.
+`easy_ec2` simplifies remote `ec2` usage in vscode by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS ec2 instances and associated resources using `ec2` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file.
 
 ### Contents
-- [`boto3` made easy](#boto3-made-easy)
+- [`ec2` made easy](#ec2-made-easy)
     - [Contents](#contents)
   - [Installation](#installation)
-  - [Using `easy_boto3` CLI](#using-easy_boto3-cli)
+  - [Using `easy_ec2` CLI](#using-easy_ec2-cli)
     - [Managing ec2 instances](#managing-ec2-instances)
       - [Creating an ec2 instance with cloudwatch alarm](#creating-an-ec2-instance-with-cloudwatch-alarm)
       - [Show instance cloud\_init logs](#show-instance-cloud_init-logs)
@@ -20,26 +20,26 @@
       - [Termianting ec2 instances by id](#termianting-ec2-instances-by-id)
     - [Managing AWS profiles](#managing-aws-profiles)
       - [List all AWS profiles in `~/.aws/credentials`](#list-all-aws-profiles-in-awscredentials)
-      - [List active AWS profile (currently used by `easy_boto3`)](#list-active-aws-profile-currently-used-by-easy_boto3)
-      - [Set active AWS profile (currently used by `easy_boto3`)](#set-active-aws-profile-currently-used-by-easy_boto3)
-  - [Using `easy_boto3`'s Python API](#using-easy_boto3s-python-api)
+      - [List active AWS profile (currently used by `easy_ec2`)](#list-active-aws-profile-currently-used-by-easy_ec2)
+      - [Set active AWS profile (currently used by `easy_ec2`)](#set-active-aws-profile-currently-used-by-easy_ec2)
+  - [Using `easy_ec2`'s Python API](#using-easy_ec2-python-api)
     - [Creating an ec2 instance](#creating-an-ec2-instance)
 
 ## Installation 
 
-You can install `easy_boto3` via `pip` as
+You can install `easy_ec2` via `pip` as
 
 ```bash
-pip install easy-boto3
+pip install easy-ec2
 ```
 
-## Using `easy_boto3` CLI
+## Using `easy_ec2` CLI
 
 ### Managing ec2 instances
 
 #### Creating an ec2 instance with cloudwatch alarm
 
-`easy_boto3` allows you to translate a standard `boto3` pythonic infrastructure task like instantiating an `ec2` instance with an attached `cloudwatch` cpu usage alarm from complex pythonic implementation like the following 
+`easy_ec2` allows you to translate a standard `ec2` pythonic infrastructure task like instantiating an `ec2` instance with an attached `cloudwatch` cpu usage alarm from complex pythonic implementation like the following 
 
 ```python
 import boto3
@@ -142,39 +142,39 @@ alarm_details:
   Threshold: 0.99
 ```
 
-Using `easy_boto3` and this configuration `config.yaml` the same task - instantiating an `ec2` instance - can be accomplished via the command line as follows:
+Using `easy_ec2` and this configuration `config.yaml` the same task - instantiating an `ec2` instance - can be accomplished via the command line as follows:
 
 ```bash
-easy_boto3 ec2 create config.yaml
+easy_ec2 ec2 create config.yaml
 ```
 
 #### Show instance cloud_init logs
 
 ```bash
-easy_boto3 ec2 check_cloud_init_logs <instance_id>
+easy_ec2 ec2 check_cloud_init_logs <instance_id>
 ```
 
 #### Show instance syslog logs
 
 ```bash
-easy_boto3 ec2 check_syslog <instance_id>
+easy_ec2 ec2 check_syslog <instance_id>
 ```
 
 #### Listing ec2 instances 
 
-You can use `easy_boto3` to easy see (all/ running / stopped / terminated) instances in your AWS account as follows.
+You can use `easy_ec2` to easy see (all/ running / stopped / terminated) instances in your AWS account as follows.
 
 See all instances
 
 ```bash
-easy_boto3 ec2 list_all
+easy_ec2 ec2 list_all
 ```
 
 
 See just running instances 
 
 ```bash
-easy_boto3 ec2 list_running
+easy_ec2 ec2 list_running
 ```
 
 The output of this command gives the instance id, name, type, and state of each instance in your account - looking like this
@@ -186,65 +186,65 @@ The output of this command gives the instance id, name, type, and state of each 
 You can filter by state - running, stopped, terminated - as follows
 
 ```bash
-easy_boto3 ec2 list_running
+easy_ec2 ec2 list_running
 ```
 
 ```bash
-easy_boto3 ec2 list_stopped
+easy_ec2 ec2 list_stopped
 ```
 
 ```bash
-easy_boto3 ec2 list_terminated
+easy_ec2 ec2 list_terminated
 ```
 
 #### Stopping an ec2 instance
 ```bash
-easy_boto3 ec2 stop <instance_id>
+easy_ec2 ec2 stop <instance_id>
 ```
 
 #### Starting a stopped an ec2 instance
 ```bash
-easy_boto3 ec2 start <instance_id>
+easy_ec2 ec2 start <instance_id>
 ```
 
 
 #### Termianting ec2 instances by id  
 
-You can use `easy_boto3` CLI to terminate an ec2 instance by id as follows
+You can use `easy_ec2` CLI to terminate an ec2 instance by id as follows
 
 ```bash
-easy_boto3 ec2 terminate <instance_id>
+easy_ec2 ec2 terminate <instance_id>
 ```
 
 Note: by default this will delete any cloudwatch alarms associated with the instance.
 
 ### Managing AWS profiles
 
-You can use `easy_boto3` CLI to manage AWS profiles as follows
+You can use `easy_ec2` CLI to manage AWS profiles as follows
 
 
 #### List all AWS profiles in `~/.aws/credentials`
 
 ```bash
-easy_boto3 profile list_all
+easy_ec2 profile list_all
 ```
 
-#### List active AWS profile (currently used by `easy_boto3`)
+#### List active AWS profile (currently used by `easy_ec2`)
 
 ```bash
-easy_boto3 profile list_active 
+easy_ec2 profile list_active 
 ```
 
-#### Set active AWS profile (currently used by `easy_boto3`)
+#### Set active AWS profile (currently used by `easy_ec2`)
 
 ```bash
-easy_boto3 profile set <profile_name>
+easy_ec2 profile set <profile_name>
 ```
 
 
-## Using `easy_boto3`'s Python API
+## Using `easy_ec2`'s Python API
 
-In addition to config driven command line use, `easy_boto3` also offers a simplified python API that makes creating and managing AWS resources with `boto3` easier.
+In addition to config driven command line use, `easy_ec2` also offers a simplified python API that makes creating and managing AWS resources with `ec2` easier.
 
 ### Creating an ec2 instance 
 
@@ -253,9 +253,9 @@ In this example an ec2 instance of user-specified type and AMI is created.
 Note `block_device_mappings` and `UserData` startup bash script are optional.
 
 ```python
-from easy_boto3 import set_profile
-from easy_boto3.startup_script_management import read_startup_script
-from easy_boto3.ec2_instance_management import launch_instance
+from easy_ec2 import set_profile
+from easy_ec2.startup_script_management import read_startup_script
+from easy_ec2.ec2_instance_management import launch_instance
 
 # set aws profile - optional - set to 'default' profile by default
 set_profile.set('my_aws_profile') # -> returns None if profile is valid

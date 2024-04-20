@@ -2,25 +2,26 @@ from pathlib import Path
 import sys
 import time
 import os
+from easy_ec2 import library_root_dir
 current_dir = Path(__file__).parent.__str__()
 parent_dir = Path(__file__).parent.parent.__str__()
 sys.path.append(parent_dir)
-test_config_path = current_dir + '/test_configs/small_test.yaml'
-main_path = parent_dir + '/easy_boto3/main.py'
+test_config_path = library_root_dir + '/examples/small_test.yaml'
+main_path = library_root_dir + '/easy_ec2/main.py'
 
-from easy_boto3.main import main  # noqa: E402
+from easy_ec2.main import main  # noqa: E402
 
 
 # conditional for github actions
 bigquery_client = None
 if "GITHUB_ACTIONS" in os.environ:
     test_config_path = './test_configs/small_test_github.yaml'
-    main_path = '/home/runner/work/easy_boto3/easy_boto3/easy_boto3/main.py'
+    main_path = '/home/runner/work/easy_ec2/easy_ec2/easy_ec2/main.py'
 
 
 def test_ec2_list_all():
     # call main for ec2 list_all test
-    result = main('easy_boto3', 'ec2', 'list_all')
+    result = main('easy_ec2', 'ec2', 'list_all')
     if result is not None:
         assert True
     else:
@@ -29,7 +30,7 @@ def test_ec2_list_all():
 
 def test_ec2_list_running():
     # call main for ec2 list_running test
-    result = main('easy_boto3', 'ec2', 'list_running')
+    result = main('easy_ec2', 'ec2', 'list_running')
     if result is not None:
         assert True
     else:
@@ -38,7 +39,7 @@ def test_ec2_list_running():
 
 def test_ec2_list_stopped():
     # call main for ec2 list_stopped test
-    result = main('easy_boto3', 'ec2', 'list_stopped')
+    result = main('easy_ec2', 'ec2', 'list_stopped')
     if result is not None:
         assert True
     else:
@@ -47,7 +48,7 @@ def test_ec2_list_stopped():
 
 def ec2_stop(instance_id):
     # call main for ec2 stop test
-    result = main('easy_boto3', 'ec2', 'stop', instance_id)
+    result = main('easy_ec2', 'ec2', 'stop', instance_id)
     print(result)
     if result is not None:
         assert True
@@ -57,7 +58,7 @@ def ec2_stop(instance_id):
 
 def ec2_terminate(instance_id):
     # call main for ec2 stop test
-    result = main('easy_boto3', 'ec2', 'terminate', instance_id)
+    result = main('easy_ec2', 'ec2', 'terminate', instance_id)
     print(result)
     if result is not None:
         assert True
@@ -67,7 +68,7 @@ def ec2_terminate(instance_id):
 
 def test_ec2_create():
     # call main for ec2 create test
-    result = main('easy_boto3', 'ec2', 'create', test_config_path)
+    result = main('easy_ec2', 'ec2', 'create', test_config_path)
     print(f'result: {result}')
     if result is not None:
         instance_id = result['instance_id']
