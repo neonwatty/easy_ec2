@@ -145,6 +145,8 @@ alarm_details:
   Threshold: 0.99
 ```
 
+This example configuration - along with a simple startup script - can be found in the examples directory.
+
 Using `easy_ec2` and this configuration `config.yaml` the same task - instantiating an `ec2` instance - can be accomplished via the command line as follows:
 
 ```bash
