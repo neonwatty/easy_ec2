@@ -25,13 +25,16 @@
   - [Using `easy_ec2`'s Python API](#using-easy_ec2-python-api)
     - [Creating an ec2 instance](#creating-an-ec2-instance)
 
-## Installation 
+## Installation and setup
 
 You can install `easy_ec2` via `pip` as
 
 ```bash
 pip install easy-ec2
 ```
+
+To use in tandem with VScode install the [ssh-Remote extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) as well.
+
 
 ## Using `easy_ec2` CLI
 
