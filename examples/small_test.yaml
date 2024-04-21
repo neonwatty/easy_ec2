@@ -1,8 +1,8 @@
-aws_profile: default
+aws_profile: <your profile name in config/credentials of ~/.aws>
 
 ec2_instance:
   instance_details:
-    InstanceName: small_example
+    InstanceName: example_worker
     InstanceType: t2.micro
     ImageId: ami-03f65b8614a860c29
     BlockDeviceMappings: 
@@ -12,26 +12,26 @@ ec2_instance:
         VolumeSize: 8
         VolumeType: gp2
     Groups:
-      - <your_security_group>
+      - <your security group>
 
   ssh_details: 
     Config:
       User: ubuntu
-      IdentityFile: <your_pem_file>
+      IdentityFile: <path to ssh key>
       ForwardAgent: yes
     Options:
       add_to_known_hosts: true
       test_connection: true
 
   script_details: 
-    filepath: <your_optional_startup_script>
+    filepath: <path_to_startup>
     inject_aws_creds: true
     ssh_forwarding: true
     github_host: true
 
 alarm_details:
   ComparisonOperator: GreaterThanOrEqualToThreshold
-  EvaluationPeriods: 10
+  EvaluationPeriods: 1
   MetricName: CPUUtilization
   Namespace: AWS/EC2
   Period: 60
