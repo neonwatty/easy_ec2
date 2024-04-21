@@ -1,0 +1,39 @@
+aws_profile: default
+
+ec2_instance:
+  instance_details:
+    InstanceName: small_example
+    InstanceType: t2.micro
+    ImageId: ami-03f65b8614a860c29
+    BlockDeviceMappings: 
+      DeviceName: /dev/sda1
+      Ebs: 
+        DeleteOnTermination: true
+        VolumeSize: 8
+        VolumeType: gp2
+    Groups:
+      - <your_security_group>
+
+  ssh_details: 
+    Config:
+      User: ubuntu
+      IdentityFile: <your_pem_file>
+      ForwardAgent: yes
+    Options:
+      add_to_known_hosts: true
+      test_connection: true
+
+  script_details: 
+    filepath: <your_optional_startup_script>
+    inject_aws_creds: true
+    ssh_forwarding: true
+    github_host: true
+
+alarm_details:
+  ComparisonOperator: GreaterThanOrEqualToThreshold
+  EvaluationPeriods: 10
+  MetricName: CPUUtilization
+  Namespace: AWS/EC2
+  Period: 60
+  Statistic: Average
+  Threshold: 0.99
