@@ -5,9 +5,9 @@
 
 `easy_ec2` simplifies remote `ec2` usage in vscode by adding a command line interface (CLI) and abridged Python API that allows you to easily create, manage, and tear-down AWS ec2 instances and associated resources using `ec2` and `awscli` in a simple, easy to use, and easy to refactor `.yaml` configuration file.
 
-A demonstration of quickly setting up and tearing down an instance using easy_ec2 is shown in the gif below.
+A demonstration of quickly setting up and tearing down an instance using `easy_ec2` is shown in the gif below.
 
-<img align="center" src="https://github.com/jermwatt/readme_gifs/blob/main/easy_ec2.gif" height="275">
+<img align="center" src="https://github.com/jermwatt/readme_gifs/blob/main/easy_ec2.gif" height="325">
 
 
 ### Contents
